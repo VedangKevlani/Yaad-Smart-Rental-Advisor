@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Yaad</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/css/styles.css" /> 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  </head>
+
+  <body>
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <span>Yaad</span>
+      </div>
+      <div class="sidebar-menu">
+        <a href="#" class="sidebar-link">Dashboard</a>
+        <a href="#" class="sidebar-link">Compare Properties</a>
+        <a href="#" class="sidebar-link">Investment Tools</a>
+        <a href="#" class="sidebar-link">About</a>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <main class="dashboard">
+        <div class="container">
+          <div id="map" style="height: 400px; width: 900px; border-radius: var(--radius); box-shadow: var(--shadow);"></div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const storedData = localStorage.getItem('submittedProperty');
+      
+      let map = L.map('map').setView([18.0155, -76.8766], 13); // Default view
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap contributors',
+      }).addTo(map);
+
+      let currentMarker;
+
+      if (storedData) {
+        const { address } = JSON.parse(storedData);
+
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.length > 0) {
+              const { lat, lon } = data[0];
+
+              map.setView([lat, lon], 15);
+
+              currentMarker = L.marker([lat, lon]).addTo(map)
+                .bindPopup(`<strong>${address}</strong>`)
+                .openPopup();
+            } else {
+              alert('Could not locate address on the map.');
+            }
+          })
+          .catch(() => alert('Error fetching map location.'));
+      } else {
+        alert('No property data found. Submit a property first.');
+      }
+    </script>
+  </body>
+</html>

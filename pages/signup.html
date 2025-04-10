@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up | Yaad - AI Rental Advisor</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-logo">
+      <span>Yaad<span class="highlight">.</span></span>
+    </div>
+    <nav class="nav-links">
+      <button id="dark-mode-toggle" class="nav-button">🌙 Dark Mode</button>
+      <a href="login.html" class="nav-button">Log In</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <section class="hero fade-in">
+      <div class="hero-content slide-up">
+        <div class="logo-title">
+          <img src="../assets/img/yaadlogo.jpg" alt="Yaad Logo" class="home-icon" />
+          <h1 class="title">Yaad<span class="highlight">.</span></h1>
+        </div>
+        <p class="subtitle">Find Your Perfect Rental with AI</p>
+        <p class="description">Sign up to explore AI-optimized property listings and get insights tailored for you in Kingston & St. Andrew.</p>
+      </div>
+
+      <div class="form-container slide-up">
+        <form class="property-form">
+          <div class="form-group">
+            <label class="label-with-icon" for="full-name">Full Name</label>
+            <input type="text" id="full-name" name="full-name" class="input-field" placeholder="John Doe" autocomplete=off required />
+          </div>
+
+          <div class="form-group">
+            <label class="label-with-icon" for="email">Email Address</label>
+            <input type="email" id="email" name="email" class="input-field" placeholder="you@example.com" autocomplete=off required />
+          </div>
+
+          <div class="form-group">
+            <label class="label-with-icon" for="password">Password</label>
+            <input type="password" id="password" name="password" class="input-field" placeholder="••••••••" autocomplete=off required />
+          </div>
+
+          <div class="form-group">
+            <label class="label-with-icon" for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" name="confirm-password" class="input-field" placeholder="••••••••" autocomplete=off required />
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="submit-button" href="index.html">
+              Create Account
+              <span class="chevron-icon">➔</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <footer class="footer">
+      &copy; 2025 Yaad. All rights reserved.
+    </footer>
+
+    <!-- Toast message container -->
+    <div id="toast" class="toast">
+      <div class="toast-content">Signed up successfully!</div>
+    </div>
+  </div>
+
+  <script src="../assets/js/script.js"></script>
+</body>
+</html>
