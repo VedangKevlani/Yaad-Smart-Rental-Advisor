@@ -1,53 +1,84 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const checkImageButton = document.getElementById('checkImage');
   const propertyImageInput = document.getElementById('propertyImage');
   const resultDiv = document.getElementById('result');
   const spinner = document.getElementById('spinner');
+  const propertyForm = document.getElementById('propertyForm');
+  const toast = document.getElementById('toast');
 
-  checkImageButton.addEventListener('click', async (event) => {
-    // Prevent default form submission behavior, which might cause the page to reload
-    event.preventDefault();
+  function showToast(message, type = 'success') {
+    const toastContent = document.querySelector('.toast-content');
+    toastContent.textContent = message;
+    toast.className = 'toast show ' + type;
+    setTimeout(() => {
+      toast.className = 'toast';
+    }, 3000);
+  }
 
-    const imageFile = propertyImageInput.files[0];
-    if (!imageFile) {
-      alert('Please select an image');
+  propertyForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const address = document.getElementById('address').value;
+    const bedrooms = document.getElementById('bedrooms').value || 'Not specified';
+    const bathrooms = document.getElementById('bathrooms').value || 'Not specified';
+    const squareFeet = document.getElementById('squareFeet').value || 'Not specified';
+    const rentCost = document.getElementById('rentCost').value || 'Not specified';
+    const imageFile = propertyImageInput.files[0] || null;
+
+    if (!address) {
+      showToast('Please enter a property address to analyze.', 'error');
       return;
     }
 
-    // Show loading spinner
-    spinner.style.display = 'block';
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append('image', imageFile);
+      spinner.style.display = 'block';
 
-    // Create FormData and append the image file
-    const formData = new FormData();
-    formData.append('image', imageFile);
+      try {
+        const response = await fetch('http://127.0.0.1:3000/check-image', {
+          method: 'POST',
+          body: formData,
+        });
 
-    try {
-      // Send image to the backend
-      const response = await fetch('http://127.0.0.1:3000/check-image', {
-        method: 'POST',
-        body: formData,
-      });
+        if (!response.ok) {
+          throw new Error(`Image check failed. Status: ${response.status}`);
+        }
 
-      // Handle HTTP errors (non-2xx status codes)
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+
+        if (data.message && data.message.toLowerCase().includes('ai-generated')) {
+          showToast('Image appears to be AI-generated. Please use a real property image.', 'error');
+          spinner.style.display = 'none';
+          return;
+        }
+      } catch (error) {
+        showToast(`Error analyzing image: ${error.message}`, 'error');
+        spinner.style.display = 'none';
+        return;
+      } finally {
+        spinner.style.display = 'none';
       }
-
-      const data = await response.json();
-      console.log(data);
-
-      // Display the result from the model
-      if (data.message) {
-        resultDiv.textContent = `Result: ${data.message}`;
-      } else {
-        resultDiv.textContent = 'No result returned from model.';
-      }
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      resultDiv.textContent = `An error occurred: ${error.message}`;
-    } finally {
-      // Hide spinner
-      spinner.style.display = 'none';
     }
+
+    showToast('We\'re analyzing your property');
+
+    const formData = {
+      address,
+      bedrooms,
+      bathrooms,
+      squareFeet,
+      rentCost,
+      imageFileName: imageFile ? imageFile.name : 'No image uploaded'
+    };
+
+    localStorage.setItem('submittedProperty', JSON.stringify(formData));
+    window.location.href = 'dashboard.html';
+  });
+
+  const fadeElements = document.querySelectorAll('.fade-in');
+  fadeElements.forEach(el => {
+    setTimeout(() => {
+      el.style.opacity = 1;
+    }, 100);
   });
 });
