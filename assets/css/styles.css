@@ -653,7 +653,7 @@
 }
 
 
-#restaurant-list-container {
+#restaurant-list-container, #school-list-container {
   margin-top: 3rem;
   padding: 2rem;
   border-radius: var(--radius);
@@ -664,21 +664,21 @@
   animation: fadeIn 0.6s ease-out forwards;
 }
 
-#restaurant-list-container h3 {
+#restaurant-list-container h3, #school-list-container h3 {
   font-size: 1.75rem;
   color: var(--primary-dark);
   margin-bottom: 1.5rem;
   text-align: center;
 }
 
-#restaurant-list {
+#restaurant-list, #school-list {
   list-style: none;
   display: grid;
   gap: 1.25rem;
   padding: 0;
 }
 
-#restaurant-list li {
+#restaurant-list li, #school-list li{
   padding: 1rem 1.25rem;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -687,22 +687,25 @@
   font-weight: 500;
 }
 
-#restaurant-list li:hover {
+#restaurant-list li:hover, #school-list li:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* Dark mode support */
-.dark-mode #restaurant-list-container {
+.dark-mode #restaurant-list-container,
+.dark-mode #school-list-container {
   background-color: #1e293b;
   color: var(--white);
 }
 
-.dark-mode #restaurant-list-container h3 {
+.dark-mode #restaurant-list-container h3,
+.dark-mode #school-list-container h3 {
   color: var(--white);
 }
 
-.dark-mode #restaurant-list li {
+.dark-mode #restaurant-list li,
+.dark-mode #school-list li {
   background-color: #334155;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 }

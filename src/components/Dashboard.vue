@@ -40,6 +40,7 @@ onMounted(() => {
             .openPopup();
 
           getNearbyRestaurants(lat, lon);
+          getNearbySchools(lat, lon);
         } else {
           errorMsg.value = 'Could not locate address on the map.';
           flashMessage(errorMsg);
@@ -94,8 +95,55 @@ onMounted(() => {
         console.error('Error fetching restaurants:', err);
       });
   }
+
+
+  function getNearbySchools(lat, lon) {
+    const radius = 1000;
+    const query = `
+      [out:json][timeout:25];
+      (
+        node["amenity"="school"](around:${radius},${lat},${lon});
+        way["amenity"="school"](around:${radius},${lat},${lon});
+        relation["amenity"="school"](around:${radius},${lat},${lon});
+      );
+      out center;
+    `;
+
+    fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      body: query,
+    })
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('school-list');
+        list.innerHTML = '';
+
+        data.elements.forEach(element => {
+          const name = element.tags?.name || 'Unnamed School';
+          const latLng = element.type === 'node'
+            ? [element.lat, element.lon]
+            : [element.center.lat, element.center.lon];
+
+          L.marker(latLng)
+            .addTo(map)
+            .bindPopup(`<strong>${name}</strong>`);
+
+          const li = document.createElement('li');
+          li.textContent = name;
+          list.appendChild(li);
+        });
+      })
+      .catch(err => {
+        console.error('Error fetching school:', err);
+      });
+  }
 });
 </script>
+
+
+
+
+
 
 <template>
 
@@ -122,6 +170,11 @@ onMounted(() => {
     <div id="restaurant-list-container">
       <h3>Nearby Restaurants</h3>
       <ul id="restaurant-list"></ul>
+    </div>
+    
+    <div id="school-list-container">
+      <h3>Nearby Schools</h3>
+      <ul id="school-list"></ul>
     </div>
 
 </template>
