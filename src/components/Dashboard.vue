@@ -2,14 +2,13 @@
 import 'leaflet/dist/leaflet.css';
 import { onMounted, ref } from 'vue';
 
-
 const errorMsg = ref('');
 
 const flashMessage = (prompt) => {
-    setTimeout(() => {
-        prompt.value = '';
+  setTimeout(() => {
+    prompt.value = '';
   }, 2000);
-}
+};
 
 onMounted(() => {
   const storedData = localStorage.getItem('submittedProperty');
@@ -39,487 +38,85 @@ onMounted(() => {
             .bindPopup(`<strong>${address}</strong>`)
             .openPopup();
 
-          getNearbyRestaurants(lat, lon);
-          getNearbySchools(lat, lon);
-          getNearbyPlacesOfWorship(lat, lon);
-          getNearbyHospitals(lat, lon);
-          getNearbyFastFood(lat, lon);
-          getNearbyBanks(lat, lon);
-          getNearbyPharmacies(lat,lon);
-          getNearbyPoliceStations(lat,lon);
-          getNearbyDoctors(lat, lon);
-          getNearbySupermarkets(lat, lon);
-          getNearbyFitnessCentres(lat, lon);
+          getAmenities(lat, lon);
         } else {
           errorMsg.value = 'Could not locate address on the map.';
           flashMessage(errorMsg);
         }
       })
       .catch(() => {
-  errorMsg.value = 'Error fetching map location.'
-  flashMessage(errorMsg)
-})
+        errorMsg.value = 'Error fetching map location.';
+        flashMessage(errorMsg);
+      });
   } else {
     errorMsg.value = 'No property data found. Submit a property first.';
     flashMessage(errorMsg);
   }
 
-  function getNearbyRestaurants(lat, lon) {
-  const radius = 1000;
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["amenity"="restaurant"](around:${radius},${lat},${lon});
-      way["amenity"="restaurant"](around:${radius},${lat},${lon});
-      relation["amenity"="restaurant"](around:${radius},${lat},${lon});
-    );
-    out center;
-  `;
+  function getAmenities(lat, lon) {
+    const amenityTypes = [
+      { key: 'restaurant', listId: 'restaurants-list', label: 'Unnamed Restaurant' },
+      { key: 'school', listId: 'school-list', label: 'Unnamed School' },
+      { key: 'place_of_worship', listId: 'place-of-worship-list', label: 'Unnamed Place of Worship' },
+      { key: 'hospital', listId: 'hospital-list', label: 'Unnamed Hospital' },
+      { key: 'fast_food', listId: 'fast-food-list', label: 'Unnamed Fast Food Place' },
+      { key: 'bank', listId: 'bank-list', label: 'Unnamed Bank' },
+      { key: 'pharmacy', listId: 'pharmacy-list', label: 'Unnamed Pharmacy' },
+      { key: 'police', listId: 'police-list', label: 'Unnamed Police Station' },
+      { key: 'doctors', listId: 'doctors-list', label: "Unnamed Doctor's Office" },
+      { key: 'supermarket', listId: 'supermarket-list', label: 'Unnamed Supermarket', isShop: true },
+      { key: 'fitness_centre', listId: 'fitness-list', label: 'Unnamed Fitness Centre' },
+    ];
 
-  fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: query,
-  })
-    .then(res => res.json())
-    .then(data => {
-      const list = document.getElementById('restaurants-list');
-      list.innerHTML = '';
+    amenityTypes.forEach(({ key, listId, label, isShop }) => {
+      const radius = 1000;
+      const query = `
+        [out:json][timeout:25];
+        (
+          node["${isShop ? 'shop' : 'amenity'}"="${key}"](around:${radius},${lat},${lon});
+          way["${isShop ? 'shop' : 'amenity'}"="${key}"](around:${radius},${lat},${lon});
+          relation["${isShop ? 'shop' : 'amenity'}"="${key}"](around:${radius},${lat},${lon});
+        );
+        out center;
+      `;
 
-      data.elements.forEach(element => {
-        const name = element.tags?.name || 'Unnamed Restaurant';
-        const latLng = element.type === 'node'
-          ? [element.lat, element.lon]
-          : [element.center.lat, element.center.lon];
-
-        L.marker(latLng)
-          .addTo(map)
-          .bindPopup(`<strong>${name}</strong>`);
-
-        const li = document.createElement('li');
-        li.textContent = name;
-        list.appendChild(li);
-      });
-    })
-    .catch(err => {
-      console.error('Error fetching restaurants:', err);
-    });
-}
-
-
-
-  function getNearbySchools(lat, lon) {
-    const radius = 1000;
-    const query = `
-      [out:json][timeout:25];
-      (
-        node["amenity"="school"](around:${radius},${lat},${lon});
-        way["amenity"="school"](around:${radius},${lat},${lon});
-        relation["amenity"="school"](around:${radius},${lat},${lon});
-      );
-      out center;
-    `;
-
-    fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      body: query,
-    })
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('school-list');
-        list.innerHTML = '';
-
-        data.elements.forEach(element => {
-          const name = element.tags?.name || 'Unnamed School';
-          const latLng = element.type === 'node'
-            ? [element.lat, element.lon]
-            : [element.center.lat, element.center.lon];
-
-          L.marker(latLng)
-            .addTo(map)
-            .bindPopup(`<strong>${name}</strong>`);
-
-          const li = document.createElement('li');
-          li.textContent = name;
-          list.appendChild(li);
-        });
+      fetch('https://overpass-api.de/api/interpreter', {
+        method: 'POST',
+        body: query,
       })
-      .catch(err => {
-        console.error('Error fetching school:', err);
-      });
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById(listId);
+          list.innerHTML = '';
+
+          data.elements.forEach(element => {
+            const name = element.tags?.name || label;
+
+            if (name.toLowerCase().startsWith('unnamed')) return;
+
+            const latLng = element.type === 'node'
+              ? [element.lat, element.lon]
+              : [element.center.lat, element.center.lon];
+
+            L.marker(latLng)
+              .addTo(map)
+              .bindPopup(`<strong>${name}</strong>`);
+
+            const li = document.createElement('li');
+            li.textContent = name;
+            list.appendChild(li);
+
+            const spacer = document.createElement('br');
+            list.appendChild(spacer);
+          });
+        })
+        .catch(err => {
+          console.error(`Error fetching ${key}:`, err);
+        });
+    });
   }
-
-  function getNearbyPlacesOfWorship(lat, lon) {
-  const radius = 1000;
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["amenity"="place_of_worship"](around:${radius},${lat},${lon});
-      way["amenity"="place_of_worship"](around:${radius},${lat},${lon});
-      relation["amenity"="place_of_worship"](around:${radius},${lat},${lon});
-    );
-    out center;
-  `;
-
-  fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: query,
-  })
-    .then(res => res.json())
-    .then(data => {
-      const list = document.getElementById('place-of-worship-list');
-      list.innerHTML = '';
-
-      data.elements.forEach(element => {
-        const name = element.tags?.name || 'Unnamed Place of Worship';
-        const latLng = element.type === 'node'
-          ? [element.lat, element.lon]
-          : [element.center.lat, element.center.lon];
-
-        L.marker(latLng)
-          .addTo(map)
-          .bindPopup(`<strong>${name}</strong>`);
-
-        const li = document.createElement('li');
-        li.textContent = name;
-        list.appendChild(li);
-      });
-    })
-    .catch(err => {
-      console.error('Error fetching places of worship:', err);
-    });
-}
-
-function getNearbyHospitals(lat, lon) {
-  const radius = 1000;
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["amenity"="hospital"](around:${radius},${lat},${lon});
-      way["amenity"="hospital"](around:${radius},${lat},${lon});
-      relation["amenity"="hospital"](around:${radius},${lat},${lon});
-    );
-    out center;
-  `;
-
-  fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: query,
-  })
-    .then(res => res.json())
-    .then(data => {
-      const list = document.getElementById('hospital-list');
-      list.innerHTML = '';
-
-      data.elements.forEach(element => {
-        const name = element.tags?.name || 'Unnamed Hospital';
-        const latLng = element.type === 'node'
-          ? [element.lat, element.lon]
-          : [element.center.lat, element.center.lon];
-
-        L.marker(latLng)
-          .addTo(map)
-          .bindPopup(`<strong>${name}</strong>`);
-
-        const li = document.createElement('li');
-        li.textContent = name;
-        list.appendChild(li);
-      });
-    })
-    .catch(err => {
-      console.error('Error fetching hospitals:', err);
-    });
-}
-
-function getNearbyFastFood(lat, lon) {
-  const radius = 1000;
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["amenity"="fast_food"](around:${radius},${lat},${lon});
-      way["amenity"="fast_food"](around:${radius},${lat},${lon});
-      relation["amenity"="fast_food"](around:${radius},${lat},${lon});
-    );
-    out center;
-  `;
-
-  fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: query,
-  })
-    .then(res => res.json())
-    .then(data => {
-      const list = document.getElementById('fast-food-list');
-      list.innerHTML = '';
-
-      data.elements.forEach(element => {
-        const name = element.tags?.name || 'Unnamed Fast Food Place';
-        const latLng = element.type === 'node'
-          ? [element.lat, element.lon]
-          : [element.center.lat, element.center.lon];
-
-        L.marker(latLng)
-          .addTo(map)
-          .bindPopup(`<strong>${name}</strong>`);
-
-        const li = document.createElement('li');
-        li.textContent = name;
-        list.appendChild(li);
-      });
-    })
-    .catch(err => {
-      console.error('Error fetching fast food places:', err);
-    });
-}
-
-function getNearbyBanks(lat, lon) {
-  const radius = 1000;
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["amenity"="bank"](around:${radius},${lat},${lon});
-      way["amenity"="bank"](around:${radius},${lat},${lon});
-      relation["amenity"="bank"](around:${radius},${lat},${lon});
-    );
-    out center;
-  `;
-
-  fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: query,
-  })
-    .then(res => res.json())
-    .then(data => {
-      const list = document.getElementById('bank-list');
-      list.innerHTML = '';
-
-      data.elements.forEach(element => {
-        const name = element.tags?.name || 'Unnamed Bank';
-        const latLng = element.type === 'node'
-          ? [element.lat, element.lon]
-          : [element.center.lat, element.center.lon];
-
-        L.marker(latLng)
-          .addTo(map)
-          .bindPopup(`<strong>${name}</strong>`);
-
-        const li = document.createElement('li');
-        li.textContent = name;
-        list.appendChild(li);
-      });
-    })
-    .catch(err => {
-      console.error('Error fetching banks:', err);
-    });
-}
-
-function getNearbyPharmacies(lat, lon) {
-  const radius = 1000;
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["amenity"="pharmacy"](around:${radius},${lat},${lon});
-      way["amenity"="pharmacy"](around:${radius},${lat},${lon});
-      relation["amenity"="pharmacy"](around:${radius},${lat},${lon});
-    );
-    out center;
-  `;
-
-  fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: query,
-  })
-    .then(res => res.json())
-    .then(data => {
-      const list = document.getElementById('pharmacy-list');
-      list.innerHTML = '';
-
-      data.elements.forEach(element => {
-        const name = element.tags?.name || 'Unnamed Pharmacy';
-        const latLng = element.type === 'node'
-          ? [element.lat, element.lon]
-          : [element.center.lat, element.center.lon];
-
-        L.marker(latLng)
-          .addTo(map)
-          .bindPopup(`<strong>${name}</strong>`);
-
-        const li = document.createElement('li');
-        li.textContent = name;
-        list.appendChild(li);
-      });
-    })
-    .catch(err => {
-      console.error('Error fetching pharmacies:', err);
-    });
-}
-
-function getNearbyPoliceStations(lat, lon) {
-  const radius = 1000;
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["amenity"="police"](around:${radius},${lat},${lon});
-      way["amenity"="police"](around:${radius},${lat},${lon});
-      relation["amenity"="police"](around:${radius},${lat},${lon});
-    );
-    out center;
-  `;
-
-  fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: query,
-  })
-    .then(res => res.json())
-    .then(data => {
-      const list = document.getElementById('police-list');
-      list.innerHTML = '';
-
-      data.elements.forEach(element => {
-        const name = element.tags?.name || 'Unnamed Police Station';
-        const latLng = element.type === 'node'
-          ? [element.lat, element.lon]
-          : [element.center.lat, element.center.lon];
-
-        L.marker(latLng)
-          .addTo(map)
-          .bindPopup(`<strong>${name}</strong>`);
-
-        const li = document.createElement('li');
-        li.textContent = name;
-        list.appendChild(li);
-      });
-    })
-    .catch(err => {
-      console.error('Error fetching police stations:', err);
-    });
-}
-
-function getNearbyDoctors(lat, lon) {
-  const radius = 1000;
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["amenity"="doctors"](around:${radius},${lat},${lon});
-      way["amenity"="doctors"](around:${radius},${lat},${lon});
-      relation["amenity"="doctors"](around:${radius},${lat},${lon});
-    );
-    out center;
-  `;
-
-  fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: query,
-  })
-    .then(res => res.json())
-    .then(data => {
-      const list = document.getElementById('doctors-list');
-      list.innerHTML = '';
-
-      data.elements.forEach(element => {
-        const name = element.tags?.name || 'Unnamed Doctor\'s Office';
-        const latLng = element.type === 'node'
-          ? [element.lat, element.lon]
-          : [element.center.lat, element.center.lon];
-
-        L.marker(latLng)
-          .addTo(map)
-          .bindPopup(`<strong>${name}</strong>`);
-
-        const li = document.createElement('li');
-        li.textContent = name;
-        list.appendChild(li);
-      });
-    })
-    .catch(err => {
-      console.error('Error fetching doctors:', err);
-    });
-}
-
-function getNearbySupermarkets(lat, lon) {
-  const radius = 1000;
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["shop"="supermarket"](around:${radius},${lat},${lon});
-      way["shop"="supermarket"](around:${radius},${lat},${lon});
-      relation["shop"="supermarket"](around:${radius},${lat},${lon});
-    );
-    out center;
-  `;
-
-  fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: query,
-  })
-    .then(res => res.json())
-    .then(data => {
-      const list = document.getElementById('supermarket-list');
-      list.innerHTML = '';
-
-      data.elements.forEach(element => {
-        const name = element.tags?.name || 'Unnamed Supermarket';
-        const latLng = element.type === 'node'
-          ? [element.lat, element.lon]
-          : [element.center.lat, element.center.lon];
-
-        L.marker(latLng)
-          .addTo(map)
-          .bindPopup(`<strong>${name}</strong>`);
-
-        const li = document.createElement('li');
-        li.textContent = name;
-        list.appendChild(li);
-      });
-    })
-    .catch(err => {
-      console.error('Error fetching supermarkets:', err);
-    });
-}
-
-function getNearbyFitnessCentres(lat, lon) {
-  const radius = 1000;
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["leisure"="fitness_centre"](around:${radius},${lat},${lon});
-      way["leisure"="fitness_centre"](around:${radius},${lat},${lon});
-      relation["leisure"="fitness_centre"](around:${radius},${lat},${lon});
-    );
-    out center;
-  `;
-
-  fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: query,
-  })
-    .then(res => res.json())
-    .then(data => {
-      const list = document.getElementById('fitness-centre-list');
-      list.innerHTML = '';
-
-      data.elements.forEach(element => {
-        const name = element.tags?.name || 'Unnamed Fitness Centre';
-        const latLng = element.type === 'node'
-          ? [element.lat, element.lon]
-          : [element.center.lat, element.center.lon];
-
-        L.marker(latLng)
-          .addTo(map)
-          .bindPopup(`<strong>${name}</strong>`);
-
-        const li = document.createElement('li');
-        li.textContent = name;
-        list.appendChild(li);
-      });
-    })
-    .catch(err => {
-      console.error('Error fetching fitness centres:', err);
-    });
-}
-
 });
 </script>
-
 
 
 
