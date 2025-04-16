@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     localStorage.setItem('submittedProperty', JSON.stringify(formData));
-    window.location.href = 'dashboard.html';
+    window.location.href = 'dashboard';
   });
 
   const fadeElements = document.querySelectorAll('.fade-in');

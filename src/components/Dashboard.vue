@@ -1,5 +1,7 @@
 <script setup>
+import 'leaflet/dist/leaflet.css';
 import { onMounted, ref } from 'vue';
+
 
 const errorMsg = ref('');
 
@@ -92,7 +94,7 @@ onMounted(() => {
         console.error('Error fetching restaurants:', err);
       });
   }
-})
+});
 </script>
 
 <template>
