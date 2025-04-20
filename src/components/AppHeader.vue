@@ -1,5 +1,6 @@
 <template>
   <header>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <nav class="navbar navbar-expand-lg fixed-top shadow bg-white" :class="isDarkmode ? 'navbar-dark dark-theme' : 'navbar'">
       <div class="container-fluid d-flex justify-content-between align-items-center">
         <a class="navbar-brand d-flex align-items-center gap-2" href="/">
@@ -27,6 +28,11 @@
             </li>
             <li class="nav-item" v-if="currentUser">
               <RouterLink class="nav-link" :class="{ active: $route.path === '/investment-tools' }" to="/investment-tools">Investment Tools</RouterLink>
+            </li>
+            <li class="nav-item" v-if="currentUser">
+              <RouterLink class="nav-link d-flex align-items-center gap-2" :class="{ active: $route.path === '/saved-property' }" to="/saved-property">
+                <i class="bi bi-bookmarks-fill"></i>Saved Properties 
+              </RouterLink>
             </li>
             <li class="nav-item" v-if="!currentUser">
               <RouterLink class="nav-link" :class="{ active: $route.path === '/login'}" to="/login">Login</RouterLink>

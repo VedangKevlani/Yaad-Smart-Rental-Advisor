@@ -19,18 +19,18 @@
     <div class="features" id="features">
       <div class="feature-box slide-up">
         <div class="feature-icon">🏙️</div>
-        <h3>Smart Detection</h3>
-        <p>Upload a screenshot of a listing — Yaad uses AI to detect key features instantly.</p>
+        <h3>Enter Property Details</h3>
+        <p>ill in the address and basic property information to get started.</p>
       </div>
       <div class="feature-box slide-up">
         <div class="feature-icon">📊</div>
-        <h3>Location Analytics</h3>
-        <p>See maps, crime stats, commute times, and more. Make informed decisions effortlessly.</p>
+        <h3>AI Analyzes the Data</h3>
+        <p>Our algorithms evaluate the property against market data and investment metrics.</p>
       </div>
       <div class="feature-box slide-up">
-        <div class="feature-icon">💬</div>
-        <h3>Chat with Yaad</h3>
-        <p>Ask questions like “Is this listing safe?” or “Can I afford this?” and get instant answers.</p>
+        <div class="feature-icon">✅</div>
+        <h3>You Get Smart Insights</h3>
+        <p>Receive a detailed analysis of the property's investment potential.</p>
       </div>
     </div>
 

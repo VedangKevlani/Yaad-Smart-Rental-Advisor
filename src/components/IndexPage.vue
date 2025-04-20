@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <h2 class="subtitle fade-in">Is This Property a Smart Investment?</h2>
           
           <p class="description fade-in">
-            Get instant insights on any address. No guesswork—just smart, data-driven decisions.
+            Get instant insights on any property. No guesswork—just smart, data-driven decisions.
           </p>
         </div>
 

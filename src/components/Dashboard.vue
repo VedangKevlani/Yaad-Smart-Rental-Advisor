@@ -1,8 +1,12 @@
 <script setup>
 import 'leaflet/dist/leaflet.css';
 import { onMounted, ref } from 'vue';
+import PriceEvaluator from '@/components/PriceEvaluator.vue';
 
+const showEvaluator = ref(false);
 const errorMsg = ref('');
+const showPopup = ref(false);
+
 
 const flashMessage = (prompt) => {
   setTimeout(() => {
@@ -251,13 +255,22 @@ onMounted(() => {
   </button>
 </div>
 
-<router-link to="/price_evaluator">
-  <div class="floating-icon">
-    <i class="bi bi-cash-coin"></i>
-  </div>
-</router-link>
+<div class="floating-icon" @click="showEvaluator = true">
+  <i class="bi bi-cash-coin"></i>
+</div>
+
+<PriceEvaluator v-if="showEvaluator" @close="showEvaluator = false" />
 
 
+<transition name="fade">
+    <div v-if="showPopup" class="popup-overlay" @click.self="showPopup = false">
+      <div class="popup-content">
+        <h5 class="mb-3">Price Evaluator</h5>
+        <p>Enter price details here...</p>
+        <button class="btn btn-secondary btn-sm mt-2" @click="showPopup = false">Close</button>
+      </div>
+    </div>
+  </transition>
 
 </template>
 
@@ -357,5 +370,37 @@ onMounted(() => {
   min-height: 300px; 
   padding-bottom: 5%;
 }
+
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.popup-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 300px;
+  max-width: 90%;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  animation: pop 0.3s ease-in-out;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 
 </style>
