@@ -28,9 +28,6 @@
             <li class="nav-item" v-if="currentUser">
               <RouterLink class="nav-link" :class="{ active: $route.path === '/investment-tools' }" to="/investment-tools">Investment Tools</RouterLink>
             </li>
-            <li class="nav-item" v-if="currentUser">
-              <RouterLink class="nav-link" :class="{ active: $route.path === '/price-evaluator' }" to="/price-evaluator">Price Evaluator</RouterLink>
-            </li>
             <li class="nav-item" v-if="!currentUser">
               <RouterLink class="nav-link" :class="{ active: $route.path === '/login'}" to="/login">Login</RouterLink>
             </li>
