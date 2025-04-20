@@ -21,7 +21,7 @@ const themeClass = computed(() => (isDarkmode.value ? 'dark' : 'light'));
 
 // Computed text for button
 const buttonText = computed(() =>
-  isDarkmode.value ? '🌞 Light Mode' : '🌙 Dark Mode'
+  isDarkmode.value ? '🌞' : '🌙'
 );
 
 // Method to toggle theme

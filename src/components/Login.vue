@@ -43,7 +43,7 @@ const login = async () => {
         flashMessage(successMsg);
 
         setTimeout(() => {
-            router.push('/'); 
+            router.push('/index'); 
         }, 4000);
     } catch (error) {
   console.error("Firebase auth error:", error.code, error.message);

@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Toggle dark mode
   toggle.addEventListener('click', () => {
     body.classList.toggle('dark-mode');
-    toggle.textContent = body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+    toggle.textContent = body.classList.contains('dark-mode') ? '☀️' : '🌙';
   });
 
   // Show toast message

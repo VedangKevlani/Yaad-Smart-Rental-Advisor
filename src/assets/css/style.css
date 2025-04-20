@@ -217,7 +217,7 @@ input:hover:not(:focus) {
 }
 
 .subtitle {
-  font-size: 1.75rem;
+  font-size: 1.3rem;
   margin-bottom: 1rem;
   color: var(--dark);
 }
@@ -264,9 +264,10 @@ input:hover:not(:focus) {
 
 
 /* Landing Section */
+
 .hero-image {
   width: 100%;
-  max-width: 500px;
+  max-width: 80%; 
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
