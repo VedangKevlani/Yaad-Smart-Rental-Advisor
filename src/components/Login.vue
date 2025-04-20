@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from 'vue';
-import { auth } from '@/firebase'; // your firebase config file
+import { auth } from '@/assets/js/firebase.js'; // your firebase config file
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'vue-router';
-import { currentUser } from '@/auth';
+import { currentUser } from '@/assets/js/auth.js';
 
 const router = useRouter();
 

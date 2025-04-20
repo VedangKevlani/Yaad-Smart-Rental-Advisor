@@ -1,5 +1,5 @@
 <script setup>
-import { currentUser } from '@/auth';
+import { currentUser } from '@/assets/js/auth.js';
 import { ref, watch, defineProps, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 const router = useRouter();

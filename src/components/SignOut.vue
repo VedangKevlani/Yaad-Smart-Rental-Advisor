@@ -5,7 +5,7 @@
   <script setup>
   import { onMounted } from 'vue';
   import { useRouter } from 'vue-router'; 
-  import { logout } from '@/auth'; 
+  import { logout }  from '@/assets/js/auth.js';
   
   const router = useRouter(); 
   

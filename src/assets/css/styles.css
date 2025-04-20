@@ -531,6 +531,8 @@
     flex-grow: 1;
     gap: 20px;  /* Space between links */
   }
+
+  
   
   .nav-links-dashboard {
     display: flex;

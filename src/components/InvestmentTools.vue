@@ -1,5 +1,5 @@
 <script setup>
-import { useFinancialTools } from '@/investments'
+import { useFinancialTools } from '@/assets/js/investments.js'
 
 const {
   loanAmount,

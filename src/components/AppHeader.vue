@@ -1,6 +1,6 @@
 <template>
     <header>
-      <nav class="navbar navbar-expand-lg navbar-light navbar-dark bg-primary fixed-top" :class="isDarkmode ? 'navbar-dark bg-primary dark-theme' : 'navbar'">
+      <nav class="navbar navbar-expand-lg fixed-top shadow bg-white" :class="isDarkmode ? 'navbar-dark dark-theme' : 'navbar'">
         <div class="container-fluid">
           <a class="navbar-brand" href="/">Yaad</a>
           <button
@@ -19,10 +19,6 @@
               <li class="nav-item">
                 <RouterLink to="/" class="nav-link" :class="{ active: $route.path === '/' }">Home</RouterLink>
               </li>
-              <!--
-                 * This is a navigation link component using Vue Router's `RouterLink`.
-                 * - The `class` attribute applies the "nav-link" class for styling.
-            -->
               <li class="nav-item">
                 <RouterLink class="nav-link" :class="{ active: $route.path === '/index' }" to="/index">Index</RouterLink>
               </li>
@@ -53,13 +49,7 @@
   
   <script setup>
   import { RouterLink } from "vue-router";
-  import { currentUser } from '@/auth';
-  /**
-   * This file defines the `AppHeader` component.
-   * 
-   * Imports:
-   * - `defineProps` from Vue: Used to define props for the component.
-   */
+  import { currentUser } from '@/assets/js/auth.js'; 
   import { defineProps } from 'vue';
   
   /**
@@ -73,21 +63,23 @@
   </script>
   
   <style>
-  /* Add any component specific styles here */
   .dark-theme {
     background-color: #1f2a3a !important; /* Dark mode */
   }
-  
-  .nav-link{
+
+  .navbar:not(.dark-theme) .nav-link {
+    color: black !important;
+  }
+
+  .dark-theme .nav-link {
     color: #fff !important;
   }
-  
+
   .nav-link:hover {
     color: #ffcc00b4 !important;
   }
-  
+
   .nav-link.active {
     color: #ffcc00 !important;
   }
-  
-  </style>
+</style>

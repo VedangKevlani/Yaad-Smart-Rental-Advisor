@@ -1,6 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router';
-import { currentUser } from '@/auth';
+import { currentUser } from '@/assets/js/auth.js';
 
 const router = useRouter()
 

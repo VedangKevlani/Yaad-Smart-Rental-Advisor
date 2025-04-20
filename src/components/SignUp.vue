@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from 'vue';
-import { auth, db } from '@/firebase';
+import { auth, db } from '@/assets/js/firebase.js';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { currentUser } from '@/auth';
+import { currentUser } from '@/assets/js/auth.js';
 
 const name = ref('');
 const email = ref('');
