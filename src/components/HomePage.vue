@@ -37,7 +37,10 @@
     <div class="cta-section slide-up" id="signup">
       <h2>Ready to Find Your Dream Rental?</h2>
       <p>Sign up and start analyzing listings with the power of AI.</p>
-      <button class="cta-button" @click="">Create an Account</button>
+      <RouterLink to="/signup">
+  <button class="cta-button">Create an Account</button>
+</RouterLink>
+
     </div>
   </section>
 </template>

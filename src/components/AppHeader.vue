@@ -2,7 +2,11 @@
   <header>
     <nav class="navbar navbar-expand-lg fixed-top shadow bg-white" :class="isDarkmode ? 'navbar-dark dark-theme' : 'navbar'">
       <div class="container-fluid d-flex justify-content-between align-items-center">
-        <a class="navbar-brand" href="/">Yaad</a>
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+  <img src="src\assets\img\trans_logo.png" alt="App Logo" style="height: 30px; width: auto;" />
+  <span style="color: white;">Yaad</span>
+</a>
+
 
         <button
           class="navbar-toggler"
@@ -21,9 +25,6 @@
             <li class="nav-item" v-if="currentUser">
               <RouterLink class="nav-link" :class="{ active: $route.path === '/index' }" to="/index">Analyze Property</RouterLink>
             </li>
-            <!-- <li class="nav-item" v-if="currentUser">
-              <RouterLink class="nav-link" :class="{ active: $route.path === '/dashboard' }" to="/dashboard">Dashboard</RouterLink>
-            </li> -->
             <li class="nav-item" v-if="currentUser">
               <RouterLink class="nav-link" :class="{ active: $route.path === '/investment-tools' }" to="/investment-tools">Investment Tools</RouterLink>
             </li>
@@ -46,6 +47,7 @@
   </header>
 </template>
 
+
 <script setup>
 import { RouterLink } from "vue-router";
 import { currentUser } from '@/assets/js/auth.js'; 
@@ -61,8 +63,12 @@ const props = defineProps({
   background-color: #1f2a3a !important;
 }
 
+.navbar:not(.dark-theme) {
+  background-color: #48b5d0 !important;
+}
+
 .navbar:not(.dark-theme) .nav-link {
-  color: black !important;
+  color: white !important;
 }
 
 .dark-theme .nav-link {

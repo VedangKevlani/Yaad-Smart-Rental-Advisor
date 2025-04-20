@@ -965,7 +965,7 @@ max-width: 100%;
   flex-direction: column;       /* stack children vertically */
   justify-content: center;      /* center vertically */
   align-items: center;          /* center horizontally */
-  background-color: #005f73;
+  background-color: #48b5d0;
   padding: 2rem;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
