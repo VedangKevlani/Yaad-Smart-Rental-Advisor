@@ -6,7 +6,7 @@ from tensorflow.keras.preprocessing import image
 model = tf.keras.models.load_model('property_classifier_model.h5')
 
 # Path to the test image
-img_path = 'property_dataset/fake/fake_21.jpg'  
+img_path = 'property_dataset/fake/fake_49.jpg'  
 
 # Load and preprocess the image
 img = image.load_img(img_path, target_size=(128, 128))
@@ -20,7 +20,7 @@ print(prediction)
 # Interpret prediction
 if prediction < 0.5:
     confidence = prediction * 100
-    print(f"This looks like a **FAKE** image with {confidence:.4f}% confidence.")
+    print(f"This looks like a **FAKE** image with {100*confidence:.4f}% confidence.")
 else:
     confidence = (1 - prediction) * 100
-    print(f"This looks like a **REAL** image with {confidence:.4f}% confidence.")
+    print(f"This looks like a **REAL** image with {100*confidence:.4f}% confidence.")
