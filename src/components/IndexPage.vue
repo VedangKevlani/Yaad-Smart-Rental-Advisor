@@ -1,7 +1,16 @@
 <script setup>
+<<<<<<< HEAD
+import { currentUser } from '@/assets/js/auth.js';
+import { ref, watch, defineProps, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import PriceEvaluator from '@/components/PriceEvaluator.vue';
+
+const showEvaluator = ref(false);
+=======
 import { currentUser } from "@/assets/js/auth.js";
 import { ref, watch, defineProps, onMounted } from "vue";
 import { useRouter } from "vue-router";
+>>>>>>> d6ec6acfa52c045a1c4661502c40b6a398b1edd5
 const router = useRouter();
 
 const showWelcome = ref(false);
@@ -152,6 +161,13 @@ document.addEventListener("DOMContentLoaded", () => {
         data-driven decisions.
       </p>
     </div>
+    <div class="floating-icon" @click="showEvaluator = true">
+  <i class="bi bi-cash-coin"></i>
+</div>
+
+<PriceEvaluator v-if="showEvaluator" @close="showEvaluator = false" />
+
+    
 
     <div class="form-container slide-up">
       <form id="propertyForm" class="property-form">
@@ -499,4 +515,28 @@ document.addEventListener("DOMContentLoaded", () => {
 .fade-leave-to {
   opacity: 0;
 }
+
+.floating-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #48b5d0;
+  color: white;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.floating-icon:hover {
+  background-color: #3aa0bb;
+}
+
 </style>

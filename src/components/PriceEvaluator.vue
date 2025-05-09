@@ -1,116 +1,257 @@
-<!-- components/PriceEvaluator.vue -->
 <template>
-    <div class="popup-overlay" @click.self="$emit('close')">
-      <div class="popup-content">
-        <h5>💲 Price Evaluator</h5>
-        <p>Insert your evaluator form or logic here.</p>
-        <!-- X icon for closing the popup -->
-        <button class="close-btn" @click="$emit('close')">
-          <i class="bi bi-x"></i>
-        </button>
+  <div class="popup-overlay" @click.self="$emit('close')">
+    <div class="popup-content">
+      <header class="popup-header">
+        <h2 class="popup-title">💲 Price Evaluator</h2>
+        <!-- Close button (×) -->
+        <button @click="$emit('close')" class="popup-close-btn" aria-label="Close">&times;</button>
+      </header>
+
+      <p class="popup-description">
+        Fill in the form to evaluate if your property is a good investment. 
+      </p>
+      <p class="location-info">(For Kingston & St. Andrew Apartments Only)</p>
+
+      <div class="popup-form">
+        <div class="form-group">
+          <label for="squareFootage">Square Footage</label>
+          <input v-model="form['Square Footage']" type="number" id="squareFootage" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="bedrooms">Bedrooms</label>
+          <input v-model="form.Bedrooms" type="number" id="bedrooms" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="bathrooms">Bathrooms</label>
+          <input v-model="form.Bathrooms" type="number" id="bathrooms" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="askingPrice">Asking Price</label>
+          <input v-model="form['AskingPrice']" type="number" id="askingPrice" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="estimatedRent">Estimated Monthly Rent</label>
+          <input v-model="form['EstimatedRent']" type="number" id="estimatedRent" class="form-control" />
+        </div>
+
+        <div class="form-group form-grid">
+          <label v-for="feature in binaryFeatures" :key="feature" class="form-checkbox-label">
+            <input
+              v-model="form[feature]"
+              type="checkbox"
+              :true-value="1"
+              :false-value="0"
+              :id="feature"
+              class="form-checkbox-input"
+            />
+            <span>{{ formatLabel(feature) }}</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="popup-footer">
+        <button @click="evaluate" class="popup-button">Evaluate</button>
+
+        <div v-if="result" class="popup-result">
+          <p class="result-predicted-value">
+            Predicted Value: ${{ result.predicted_value.toLocaleString() }}
+          </p>
+          <p class="result-verdict">
+            {{ result.verdict === 'strong_positive' ? '✅ High Investment Potential' :
+              result.verdict === 'neutral' ? '⚠️ Moderate Potential' :
+              '❌ Low Investment Potential' }}
+          </p>
+        </div>
       </div>
     </div>
-  </template>
-  
-  <script setup>
-  import { ref } from 'vue';
-  
-  const price = ref(null);
-  const evaluatePrice = () => {
-    // Logic for price evaluation goes here
-    console.log("Evaluating price:", price.value);
-  };
-  </script>
-  
-  <style scoped>
-  .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1100;
-    animation: fadeIn 0.3s ease-out;
-  }
-  
-  .popup-content {
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    padding: 2rem;
-    border-radius: 12px;
-    width: 400px;
-    max-width: 90%;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    position: relative;
-    animation: scaleUp 0.3s ease-out;
-  }
-  
-  h5 {
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  p {
-    color: #555;
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-    padding: 0.75rem 1.5rem;
-    font-size: 1.1rem;
-    border-radius: 25px;
-    width: 100%;
-    transition: background-color 0.3s ease;
-  }
-  
-  .btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #004085;
-  }
-  
-  .close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 1.75rem;
-    color: #555;
-    cursor: pointer;
-    transition: color 0.3s ease, transform 0.3s ease;
-  }
-  
-  .close-btn:hover {
-    color: #d9534f;
-    transform: scale(1.2);
-  }
-  
-  .close-btn i {
-    font-size: 1.75rem;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  
-  @keyframes scaleUp {
-    from {
-      transform: scale(0.9);
-    }
-    to {
-      transform: scale(1);
-    }
-  }
-  </style>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+const result = ref(null)
+
+const binaryFeatures = [
+  '24_Hour_Security',
+  'Furnished',
+  'Garden_Area',
+  'Swimming_Pool',
+  'Central_Location',
+  'Gated_Community',
+  'View_-_Ocean',
+  'Waterfront_-_Ocean',
+]
+
+const form = ref({
+  'Square Footage': '',
+  Bedrooms: '',
+  Bathrooms: '',
+  AskingPrice: '',
+  EstimatedRent: '',
+  '24_Hour_Security': 0,
+  Furnished: 0,
+  Garden_Area: 0,
+  Swimming_Pool: 0,
+  Central_Location: 0,
+  Gated_Community: 0,
+  'View_-_Ocean': 0,
+  'Waterfront_-_Ocean': 0,
+})
+
+const formatLabel = (label) => label.replace(/_/g, ' ').replace(/-/g, '–')
+
+const evaluate = async () => {
+  const response = await fetch('http://localhost:5000/api/evaluate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(form.value),
+  })
+  result.value = await response.json()
+}
+</script>
+
+<style scoped>
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+  overflow: auto;
+}
+
+.popup-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.popup-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.popup-close-btn {
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.5rem;
+}
+
+.popup-description {
+  margin: 1rem 0;
+  color: #555;
+}
+
+.popup-form {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-right: 4px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-control {
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.location-info {
+  font-size: 1rem;
+  color: black;
+  margin-top: 1rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.5rem;
+}
+
+.form-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-checkbox-input {
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.popup-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.popup-button {
+  background-color: #4caf50;
+  color: white;
+  padding: 0.9rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.popup-result {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.popup-close-btn {
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.5rem;
+  color: #333; /* Change to a darker color */
+}
+
+
+</style>
