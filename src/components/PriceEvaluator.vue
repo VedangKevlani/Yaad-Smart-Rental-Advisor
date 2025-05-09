@@ -3,12 +3,11 @@
     <div class="popup-content">
       <header class="popup-header">
         <h2 class="popup-title">💲 Price Evaluator</h2>
-        <!-- Close button (×) -->
         <button @click="$emit('close')" class="popup-close-btn" aria-label="Close">&times;</button>
       </header>
 
       <p class="popup-description">
-        Fill in the form to evaluate if your property is a good investment. 
+        Fill in the form to evaluate the rental price of your property by comparing expected rent to predicted rent.
       </p>
       <p class="location-info">(For Kingston & St. Andrew Apartments Only)</p>
 
@@ -26,11 +25,7 @@
           <input v-model="form.Bathrooms" type="number" id="bathrooms" class="form-control" />
         </div>
         <div class="form-group">
-          <label for="askingPrice">Asking Price</label>
-          <input v-model="form['AskingPrice']" type="number" id="askingPrice" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label for="estimatedRent">Estimated Monthly Rent</label>
+          <label for="estimatedRent">Observed Monthly Rent</label>
           <input v-model="form['EstimatedRent']" type="number" id="estimatedRent" class="form-control" />
         </div>
 
@@ -54,12 +49,10 @@
 
         <div v-if="result" class="popup-result">
           <p class="result-predicted-value">
-            Predicted Value: ${{ result.predicted_value.toLocaleString() }}
+            Predicted Monthly Rent: ${{ result.predicted_value.toLocaleString() }}
           </p>
           <p class="result-verdict">
-            {{ result.verdict === 'strong_positive' ? '✅ High Investment Potential' :
-              result.verdict === 'neutral' ? '⚠️ Moderate Potential' :
-              '❌ Low Investment Potential' }}
+            {{ verdictText }}
           </p>
         </div>
       </div>
@@ -68,9 +61,23 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const result = ref(null)
+const form = ref({
+  'Square Footage': '',
+  Bedrooms: '',
+  Bathrooms: '',
+  EstimatedRent: '',
+  '24_Hour_Security': 0,
+  Furnished: 0,
+  Garden_Area: 0,
+  Swimming_Pool: 0,
+  Central_Location: 0,
+  Gated_Community: 0,
+  'View_-_Ocean': 0,
+  'Waterfront_-_Ocean': 0,
+})
 
 const binaryFeatures = [
   '24_Hour_Security',
@@ -83,23 +90,29 @@ const binaryFeatures = [
   'Waterfront_-_Ocean',
 ]
 
-const form = ref({
-  'Square Footage': '',
-  Bedrooms: '',
-  Bathrooms: '',
-  AskingPrice: '',
-  EstimatedRent: '',
-  '24_Hour_Security': 0,
-  Furnished: 0,
-  Garden_Area: 0,
-  Swimming_Pool: 0,
-  Central_Location: 0,
-  Gated_Community: 0,
-  'View_-_Ocean': 0,
-  'Waterfront_-_Ocean': 0,
+const formatLabel = (label) => label.replace(/_/g, ' ').replace(/-/g, '–')
+
+const verdictText = computed(() => {
+  if (!result.value || !form.value['EstimatedRent']) return ''
+  const predicted = result.value.predicted_value
+  const actual = parseFloat(form.value['EstimatedRent'])
+  const diffPercent = Math.abs(predicted - actual) / actual
+
+  if (predicted > actual) {
+    if (diffPercent >= 0.1) return '🤔 Underpriced. Be Cautious!'
+    if (diffPercent >= 0.25) return '⚠️ Slightly Overestimated Rent'
+    return '✅ Fair Price'
+  } else if (predicted < actual) {
+    if (diffPercent >= 0.1) return '🤔 Overpriced. Be Cautious!'
+    if (diffPercent >= 0.25) return '❌ Significantly Overestimated Rent'
+    return '✅ Great Deal'
+  } else {
+    return '🎯 Price is on Target'
+  }
 })
 
-const formatLabel = (label) => label.replace(/_/g, ' ').replace(/-/g, '–')
+
+
 
 const evaluate = async () => {
   const response = await fetch('http://localhost:5000/api/evaluate', {
@@ -107,7 +120,13 @@ const evaluate = async () => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(form.value),
   })
-  result.value = await response.json()
+  const data = await response.json()
+
+  if (data.predicted_value !== undefined) {
+    result.value = data
+  } else {
+    result.value = null
+  }
 }
 </script>
 
@@ -250,8 +269,6 @@ input[type="number"]::-webkit-inner-spin-button {
   top: 0;
   right: 0;
   padding: 0.5rem;
-  color: #333; /* Change to a darker color */
+  color: #333;
 }
-
-
 </style>
