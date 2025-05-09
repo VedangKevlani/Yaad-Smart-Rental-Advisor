@@ -25,7 +25,7 @@
           <input v-model="form.Bathrooms" type="number" id="bathrooms" class="form-control" />
         </div>
         <div class="form-group">
-          <label for="estimatedRent">Observed Monthly Rent</label>
+          <label for="estimatedRent">Monthly Rent</label>
           <input v-model="form['EstimatedRent']" type="number" id="estimatedRent" class="form-control" />
         </div>
 

@@ -58,11 +58,11 @@ def evaluate():
 
         diff_percent = abs(predicted_rent - est_rent) / est_rent
 
-        if est_rent < predicted_rent:  # if observed rent is lower than predicted rent
-            if diff_percent <= 0.2:  # If the observed rent is within 20% lower than predicted
+        if est_rent < predicted_rent: 
+            if diff_percent <= 0.2: 
                 verdict = 'strong_positive'
             else:
-                verdict = 'neutral'  # too large of a difference to be considered a strong positive
+                verdict = 'neutral'  
         elif diff_percent <= 0.1:
             verdict = 'strong_positive'
         elif diff_percent <= 0.25:
