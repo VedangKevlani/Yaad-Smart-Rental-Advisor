@@ -5,8 +5,6 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, r2_score
 
 app = Flask(__name__)
 CORS(app)
@@ -24,22 +22,14 @@ def load_model():
     X = data[FEATURES]
     y = data['Price']
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
     pipeline = Pipeline([
         ('imputer', SimpleImputer(strategy='median')),
         ('scaler', StandardScaler())
     ])
-    X_train_transformed = pipeline.fit_transform(X_train)
-    X_test_transformed = pipeline.transform(X_test)
+    X_transformed = pipeline.fit_transform(X)
 
     model = RandomForestRegressor(n_estimators=100, max_depth=12, min_samples_leaf=2, random_state=42)
-    model.fit(X_train_transformed, y_train)
-
-    y_pred = model.predict(X_test_transformed)
-    mse = mean_squared_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
-    print(f"MSE: {mse:.2f}, R²: {r2:.2f}")
+    model.fit(X_transformed, y)
 
 @app.before_request
 def ensure_model_loaded():
