@@ -1,16 +1,10 @@
 <script setup>
-<<<<<<< HEAD
 import { currentUser } from '@/assets/js/auth.js';
 import { ref, watch, defineProps, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import PriceEvaluator from '@/components/PriceEvaluator.vue';
 
 const showEvaluator = ref(false);
-=======
-import { currentUser } from "@/assets/js/auth.js";
-import { ref, watch, defineProps, onMounted } from "vue";
-import { useRouter } from "vue-router";
->>>>>>> d6ec6acfa52c045a1c4661502c40b6a398b1edd5
 const router = useRouter();
 
 const showWelcome = ref(false);
