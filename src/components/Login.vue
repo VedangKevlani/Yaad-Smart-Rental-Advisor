@@ -36,6 +36,8 @@ const login = async () => {
 
         await signInWithEmailAndPassword(auth, email.value.trim(), password.value.trim());
 
+        localStorage.setItem('userID', currentUser.value.uid);
+
         email.value = '';
         password.value = '';
 

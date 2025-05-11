@@ -6,13 +6,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 export const currentUser = ref(null);
 
 onAuthStateChanged(auth, (user) => {
-  
-
-  if (user) {
-    user.displayName = user.displayName?.split(" ")[0] || 'User';
-  }
-
-  currentUser.value = user;
+    currentUser.value = user;
 });
 
 

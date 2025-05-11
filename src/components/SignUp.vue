@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router';
 import { auth, db } from '@/assets/js/firebase.js';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { currentUser } from '@/assets/js/auth.js';
 
 const router = useRouter();
 
@@ -25,6 +24,7 @@ const isValidEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
+
 const register = async () => {
   if (password.value !== c_password.value) {
     errorMsg.value = 'Passwords do not match!!';
@@ -43,6 +43,7 @@ const register = async () => {
       const userCredentials = await createUserWithEmailAndPassword(auth, email.value, password.value);
       const user = userCredentials?.user;
 
+
       if (!user) {
         errorMsg.value = 'Registration failed: no user returned!!';
         flashMessage(errorMsg);
@@ -59,8 +60,6 @@ const register = async () => {
         createdAt: serverTimestamp(),
       });
 
-      const token = await user.getIdToken();
-
       name.value = '';
       email.value = '';
       password.value = '';
@@ -70,7 +69,7 @@ const register = async () => {
       flashMessage(successMsg);
 
       setTimeout(() => {
-        router.push('/index'); // change to '/' if your main page is at root
+        router.push('/index'); 
       }, 2000);
     } catch (err) {
       errorMsg.value = err.message;

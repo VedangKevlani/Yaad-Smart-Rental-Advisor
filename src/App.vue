@@ -44,9 +44,6 @@ const updateThemeClass = () => {
 </script>
 
 <template>
-  <!--
-    This line renders the `AppHeader` component and passes a prop named `isDarkmode` to it.
-  -->
   <AppHeader :isDarkmode="isDarkmode" />
 
   <main>

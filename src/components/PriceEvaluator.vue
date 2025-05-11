@@ -61,9 +61,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed } from 'vue';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/assets/js/firebase.js';
 
-const result = ref(null)
+const userID = localStorage.getItem('userID');
+
+const result = ref(null);
+
 const form = ref({
   'Square Footage': '',
   Bedrooms: '',
@@ -123,6 +128,23 @@ const evaluate = async () => {
   const data = await response.json()
 
   if (data.predicted_value !== undefined) {
+    await setDoc(doc(db, 'price-evaluator-queries', userID), {
+      uid: userID,
+      square_footage: form.value['Square Footage'],
+      bedrooms: form.value.Bedrooms,
+      bathrooms: form.value.Bathrooms,
+      monthly_rent: form.value.EstimatedRent,
+      security: form.value['24_Hour_Security'] ? 'yes' : 'no',
+      furnished: form.value.Furnished ? 'yes' : 'no',
+      garden_area: form.value.Garden_Area ? 'yes' : 'no',
+      swimming_pool: form.value.Swimming_Pool ? 'yes' : 'no',
+      central_location: form.value.Central_Location ? 'yes' : 'no',
+      gated_community: form.value.Gated_Community ? 'yes' : 'no',
+      view_ocean: form.value['View_-_Ocean'] ? 'yes' : 'no',
+      waterfront_ocean: form.value['Waterfront_-_Ocean'] ? 'yes' : 'no',
+      predicted_value: data.predicted_value,
+      createdAt: serverTimestamp(),
+      });
     result.value = data
   } else {
     result.value = null

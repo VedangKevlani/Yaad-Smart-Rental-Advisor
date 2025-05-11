@@ -6,6 +6,7 @@ import Login from 'src/components/Login.vue'
 import SignOut from 'src/components/SignOut.vue'
 import Dashboard from 'src/components/Dashboard.vue'
 import InvestmentTools from 'src/components/InvestmentTools.vue'
+import MyProfile from '../components/MyProfile.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
       path: '/investment-tools',
       name: 'investmenttools',
       component: InvestmentTools
+    },
+    {
+      path: '/my-profile',
+      name: 'myprofile',
+      component: MyProfile
     }
   ]
 })

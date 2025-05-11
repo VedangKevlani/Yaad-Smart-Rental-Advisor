@@ -14,13 +14,15 @@ defineProps({
   isDarkmode: Boolean,
 });
 
+
 watch(
   () => currentUser.value?.displayName,
   (newName) => {
     const hasWelcomed = localStorage.getItem("hasWelcomed");
     if (newName && newName !== "" && !hasWelcomed) {
       showWelcome.value = true;
-      displayName.value = currentUser.value.displayName;
+      displayName.value = currentUser.value.displayName?.split(" ")[0];
+
 
       localStorage.setItem("hasWelcomed", "true"); // prevent re-showing
       setTimeout(() => {

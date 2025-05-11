@@ -30,16 +30,16 @@
               <RouterLink class="nav-link" :class="{ active: $route.path === '/investment-tools' }" to="/investment-tools">Investment Tools</RouterLink>
             </li>
             <li class="nav-item" v-if="currentUser">
-              <RouterLink class="nav-link d-flex align-items-center gap-2" :class="{ active: $route.path === '/signout' }" to="/signout">
+              <RouterLink class="nav-link d-flex align-items-center gap-2" :class="{ active: $route.path === '/my-profile' }" to="/my-profile">
                 <i class="bi bi-person-circle"></i>My Profile 
               </RouterLink>
             </li>
             <li class="nav-item" v-if="!currentUser">
               <RouterLink class="nav-link" :class="{ active: $route.path === '/login'}" to="/login">Login</RouterLink>
             </li>
-            <!-- <li class="nav-item" v-if="currentUser">
+            <li class="nav-item" v-if="currentUser">
               <RouterLink class="nav-link" :class="{ active: $route.path === '/signout'}" to="/signout">Sign Out</RouterLink>
-            </li> -->
+            </li>
             <li class="nav-item" v-if="!currentUser">
               <RouterLink class="nav-link" :class="{ active: $route.path === '/signup'}" to="/signup">Sign Up</RouterLink>
             </li>
