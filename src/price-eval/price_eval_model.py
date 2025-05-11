@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
@@ -15,7 +16,13 @@ def evaluate():
     try:
         logging.debug(f"Received data: {request.get_json()}")
 
-        df = pd.read_csv('src\price-eval\property_rentals.csv')
+        # Get the absolute path of the current script
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(current_dir, 'property_rentals.csv')
+
+        logging.debug(f"Loading CSV from: {file_path}")
+        
+        df = pd.read_csv(file_path)
 
         target = 'Price'
         features = [
