@@ -124,6 +124,7 @@ onMounted(() => {
     margin-top: 30px;
 }
 
+
 .query {
     width: 60%;
     height: auto;
@@ -141,6 +142,12 @@ onMounted(() => {
 .query:hover {
     transform: scale(1.05);
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .query {
+    background-color: #0f172a;
+    border: #0f172a;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9);
 }
 
 .option {
@@ -161,6 +168,10 @@ onMounted(() => {
     color: #333;
 }
 
+.dark-mode .option *{
+    color: white;
+}
+
 .profile-header {
   display: flex;
   flex-direction: column;
@@ -177,8 +188,18 @@ onMounted(() => {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   transform: perspective(800px) rotateX(5deg);
   transform-style: preserve-3d;
+  transition: all 0.3s ease-in-out;
 }
 
+.dark-mode .profile-header {
+    border: #0f172a;
+    background-color: #0f172a;
+   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9);
+}
+
+.dark-mode #name, #email {
+    color: white;
+}
 
 #name {
     font-size: 24px;
