@@ -22,83 +22,87 @@ onMounted(() => {
 </script>
 
 <template>
-<div class="main-body">
+  <div class="main-body">
     <div class="profile-header">
-        <p id="name">{{ currentUser.displayName  }}</p>
-        <p id="email">{{ currentUser.email }}</p>
+      <p id="name">{{ currentUser.displayName }}</p>
+      <p id="email">{{ currentUser.email }}</p>
     </div>
 
     <h2>Previous Price Evaluator Queries</h2>
 
-    <div class="price-evaluator-queries" v-for="query in queries" :key="query.uid">
-        <div class="query">
-             <div class="option">
-                <label for="square_footage">Square Footage: </label>
-                <p>{{ query.square_footage }} sq ft</p>
-            </div>
-
-            <div class="option">
-                <label for="bedrooms">Bedrooms: </label>
-                <p>{{ query.bedrooms }}</p>
-            </div>
-
-            <div class="option">
-                <label for="bathrooms">Bathrooms: </label>
-                <p>{{ query.bathrooms }}</p>
-            </div>
-
-            <div class="option">
-                <label for="monthly_rent">Monthly Rent: </label>
-                <p>${{ query.monthly_rent }}.00</p>
-            </div>
-
-            <div class="option">
-                <label for="24_hour_security">24 Hour Security? </label>
-                <p>{{ query.security }}</p>
-            </div>
-
-            <div class="option">
-                <label for="swimming_pool">Swimming Pool? </label>
-                <p>{{ query.swimming_pool }}</p>
-            </div>
-
-            <div class="option">
-                <label for="view_ocean">Ocean View? </label>
-                <p>{{ query.view_ocean }}</p>
-            </div>
-
-            <div class="option">
-                <label for="waterfront_ocean">Waterfront? </label>
-                <p>{{ query.waterfront_ocean }}</p>
-            </div>
-
-            <div class="option">
-                <label for="garden_area">Garden Area? </label>
-                <p>{{ query.garden_area }}</p>
-            </div>
-
-            <div class="option">
-                <label for="central_location">Central Location? </label>
-                <p>{{ query.central_location }}</p>
-            </div>
-
-            <div class="option">
-                <label for="gated_community">Gated Community? </label>
-                <p>{{ query.gated_community }}</p>
-            </div>
-
-            <div class="option">
-                <label for="furnished">Furnished? </label>
-                <p>{{ query.furnished }}</p>
-            </div>
-
-            <div class="option">
-                <label for="predicted_value">Predicted Value: </label>
-                <p>${{ query.predicted_value }}</p>
-            </div>
+    <div class="price-evaluator-queries" v-for="(query, index) in queries" :key="index">
+      <details class="query">
+        <summary>
+          Query {{ index + 1 }} - {{ query.square_footage }} sq ft, ${{ query.predicted_value }}
+        </summary>
+        
+        <div class="option">
+          <label for="square_footage">Square Footage:</label>
+          <p>{{ query.square_footage }} sq ft</p>
         </div>
+
+        <div class="option">
+          <label for="bedrooms">Bedrooms:</label>
+          <p>{{ query.bedrooms }}</p>
+        </div>
+
+        <div class="option">
+          <label for="bathrooms">Bathrooms:</label>
+          <p>{{ query.bathrooms }}</p>
+        </div>
+
+        <div class="option">
+          <label for="monthly_rent">Monthly Rent:</label>
+          <p>${{ query.monthly_rent }}.00</p>
+        </div>
+
+        <div class="option">
+          <label for="24_hour_security">24 Hour Security?</label>
+          <p>{{ query.security }}</p>
+        </div>
+
+        <div class="option">
+          <label for="swimming_pool">Swimming Pool?</label>
+          <p>{{ query.swimming_pool }}</p>
+        </div>
+
+        <div class="option">
+          <label for="view_ocean">Ocean View?</label>
+          <p>{{ query.view_ocean }}</p>
+        </div>
+
+        <div class="option">
+          <label for="waterfront_ocean">Waterfront?</label>
+          <p>{{ query.waterfront_ocean }}</p>
+        </div>
+
+        <div class="option">
+          <label for="garden_area">Garden Area?</label>
+          <p>{{ query.garden_area }}</p>
+        </div>
+
+        <div class="option">
+          <label for="central_location">Central Location?</label>
+          <p>{{ query.central_location }}</p>
+        </div>
+
+        <div class="option">
+          <label for="gated_community">Gated Community?</label>
+          <p>{{ query.gated_community }}</p>
+        </div>
+
+        <div class="option">
+          <label for="furnished">Furnished?</label>
+          <p>{{ query.furnished }}</p>
+        </div>
+
+        <div class="option">
+          <label for="predicted_value">Predicted Value:</label>
+          <p>${{ query.predicted_value }}</p>
+        </div>
+      </details>
     </div>
-</div>
+  </div>
 </template>
 
 <style scoped>
@@ -123,7 +127,6 @@ onMounted(() => {
     justify-content: center;
     margin-top: 30px;
 }
-
 
 .query {
     width: 60%;
@@ -212,5 +215,21 @@ onMounted(() => {
     font-size: 14px;
     font-weight: 400;
     color: #666;
+}
+
+.query summary {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    outline: none;
+}
+
+.query[open] {
+    background-color: #f9f9f9;
+}
+
+.dark-mode .query[open] {
+    background-color: #1e293b;
 }
 </style>
