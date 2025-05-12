@@ -7,12 +7,33 @@ const showEvaluator = ref(false);
 const errorMsg = ref('');
 const showPopup = ref(false);
 
+// Reactive state for toast message and type
+const toastMessage = ref('');
+const toastType = ref('');
 
-const flashMessage = (prompt) => {
+const predictionLabel = ref("");
+const predictionConfidence = ref("");
+
+// Function to show toast
+const flashMessage = (message, type = 'error') => {
+  toastMessage.value = message;
+  toastType.value = type;
+
+  // Hide the toast after 3 seconds
   setTimeout(() => {
-    prompt.value = '';
-  }, 2000);
+    toastMessage.value = '';
+    toastType.value = '';
+  }, 3000);
 };
+
+onMounted(() => {
+  const stored = localStorage.getItem("predictionResult");
+  if (stored) {
+    const result = JSON.parse(stored);
+    predictionLabel.value = result.label;
+    predictionConfidence.value = result.confidence;
+  }
+});
 
 onMounted(() => {
   const storedData = localStorage.getItem('submittedProperty');
@@ -129,18 +150,27 @@ onMounted(() => {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
-
     <transition name="fade">
         <div v-if="errorMsg" class="error-message">
             {{ errorMsg }}
         </div>
     </transition>
 
+    <transition name="fade">
+      <div v-if="predictionLabel" class="alert alert-info">
+        Prediction: Your image is most likely {{ predictionLabel }}
+      </div>
+    </transition>
+
+    <!-- Toast Message -->
+    <div v-if="toastMessage" :class="['toast', toastType === 'error' ? 'toast-error' : 'toast-success']">
+      <div class="toast-content">{{ toastMessage }}</div>
+    </div>
 
   <div class="map-info">
       <h3>Explore the Map to View Nearby Amenities</h3>
       <p>Use the map below to discover nearby amenities, including restaurants, shops, and other services in your area.</p>
-    </div>
+  </div>
 
     <div class="main-content">
       <main class="dashboard">
@@ -275,6 +305,25 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.toast {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #333;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  z-index: 1000;
+  transition: opacity 0.3s ease;
+}
+
+.toast.show {
+  display: block;
+}
+.toast-content {
+  font-size: 1rem;
+}
 
 .floating-icon {
   position: fixed;

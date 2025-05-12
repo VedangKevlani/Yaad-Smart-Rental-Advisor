@@ -10,10 +10,13 @@ const router = useRouter();
 const showWelcome = ref(false);
 const displayName = ref("");
 
+const showPrediction = ref(false);
+const predictionMessage = ref("");
+
+
 defineProps({
   isDarkmode: Boolean,
 });
-
 
 watch(
   () => currentUser.value?.displayName,
@@ -21,8 +24,7 @@ watch(
     const hasWelcomed = localStorage.getItem("hasWelcomed");
     if (newName && newName !== "" && !hasWelcomed) {
       showWelcome.value = true;
-      displayName.value = currentUser.value.displayName?.split(" ")[0];
-
+      displayName.value = currentUser.value.displayName;
 
       localStorage.setItem("hasWelcomed", "true"); // prevent re-showing
       setTimeout(() => {
@@ -40,14 +42,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const propertyForm = document.getElementById("propertyForm");
   const toast = document.getElementById("toast");
 
-  function showToast(message, type = "success") {
-    const toastContent = document.querySelector(".toast-content");
-    toastContent.textContent = message;
-    toast.className = "toast show " + type;
-    setTimeout(() => {
-      toast.className = "toast";
-    }, 3000);
+function showToast(message, type = "success") {
+  const toast = document.querySelector("#toast");  // Use the correct ID
+  const toastContent = toast.querySelector(".toast-content");  // Ensure correct content target
+
+  if (!toast || !toastContent) {
+    console.error("Toast element or content not found.");
+    return;
   }
+
+  toastContent.textContent = message;
+  toast.classList.add("show", type);  // Add 'show' class for visibility
+
+  console.log("Toast visible:", toast.classList.contains("show"));
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3000);  // Hide after 3 seconds
+}
+
+  function displayPrediction(label, confidence) {
+  predictionMessage.value = `${label} (Confidence: ${confidence}%)`;
+  showPrediction.value = true;
+
+  setTimeout(() => {
+    showPrediction.value = false;
+  }, 3000);
+}
 
   propertyForm.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -69,41 +90,58 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (imageFile) {
-      const formData = new FormData();
-      formData.append("image", imageFile);
-      spinner.style.display = "block";
+  const formData = new FormData();
+  formData.append("image", imageFile);
+  spinner.style.display = "block";
 
+    try {
+      const response = await fetch("http://127.0.0.1:3000/check-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      const text = await response.text(); // Read as text first
+      console.log("Raw response:", text);
+
+      let data;
       try {
-        const response = await fetch("http://127.0.0.1:3000/check-image", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Image check failed. Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (
-          data.message &&
-          data.message.toLowerCase().includes("ai-generated")
-        ) {
-          showToast(
-            "Image appears to be AI-generated. Please use a real property image.",
-            "error"
-          );
-          spinner.style.display = "none";
-          return;
-        }
-      } catch (error) {
-        showToast(`Error analyzing image: ${error.message}`, "error");
-        spinner.style.display = "none";
+        data = JSON.parse(text); // Try parsing manually
+        console.log("Parsed JSON:", data.label);
+        const prediction = {
+        label: data.label,
+        confidence: data.confidence,
+      };
+      localStorage.setItem("predictionResult", JSON.stringify(prediction));
+      router.push("/Dashboard");
+      } catch (err) {
+        showToast("Invalid JSON returned from server", "error");
+        console.error("JSON parse error:", err);
         return;
-      } finally {
-        spinner.style.display = "none";
       }
+
+    if (!response.ok) {
+      throw new Error(`Image check failed. Status: ${response.status}`);
     }
+
+    if (
+      data.message &&
+      data.message.toLowerCase().includes("ai-generated")
+    ) {
+      showToast(
+        "Image appears to be AI-generated. Please use a real property image.",
+        "error"
+      );
+      return;
+    }
+     showToast(`${data.message} (Confidence: ${data.confidence}%)`, "success");
+      } catch (error) {
+    showToast(`Error analyzing image: ${error.message}`, "error");
+    console.error(error);
+    return;
+  } finally {
+    spinner.style.display = "none";
+  }
+}
 
     showToast("We're analyzing your property");
 
@@ -140,6 +178,15 @@ document.addEventListener("DOMContentLoaded", () => {
           Welcome back, {{ displayName }}!
         </div>
       </transition>
+
+      <transition name="fade">
+        <div
+          v-if="showPrediction"
+          :class="['alert', isDarkmode ? 'alert-dark' : 'alert-success']"
+        >
+          {{ predictionMessage }}
+        </div>
+      </transition>
       <div class="logo-title fade-in">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="-6 0 30 16" fill="none" stroke="#40a7c3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="home-icon">
               <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -163,7 +210,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <PriceEvaluator v-if="showEvaluator" @close="showEvaluator = false" />
 
-    
+  <!-- <div id="toast" class="toast">
+    <span class="toast-content"></span>
+  </div> -->
 
     <div class="form-container slide-up">
       <form id="propertyForm" class="property-form">
@@ -473,6 +522,23 @@ document.addEventListener("DOMContentLoaded", () => {
 </template>
 
 <style scoped>
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #333;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 9999;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
 .home-icon {
   width: 40px;
   height: 40px;
