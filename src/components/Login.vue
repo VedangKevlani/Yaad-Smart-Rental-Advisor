@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { auth } from '@/assets/js/firebase.js'; // your firebase config file
+import { auth } from '@/assets/js/firebase.js'; 
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'vue-router';
 import { currentUser } from '@/assets/js/auth.js';
@@ -14,7 +14,6 @@ const successMsg = ref('');
 
 
 const isValidEmail = (email) => {
-  // Simple email regex
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
