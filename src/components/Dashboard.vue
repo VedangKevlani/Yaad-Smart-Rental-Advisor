@@ -7,24 +7,26 @@ const showEvaluator = ref(false);
 const errorMsg = ref('');
 const showPopup = ref(false);
 
-// Reactive state for toast message and type
-const toastMessage = ref('');
-const toastType = ref('');
 
 const predictionLabel = ref("");
 const predictionConfidence = ref("");
 
-// Function to show toast
-const flashMessage = (message, type = 'error') => {
-  toastMessage.value = message;
-  toastType.value = type;
+function showToast(message, type) {
+  const toast = document.querySelector("#toast");
+  const toastContent = toast.querySelector(".toast-content");
 
-  // Hide the toast after 3 seconds
+  if (!toast || !toastContent) {
+    console.error("Toast element or content not found.");
+    return;
+  }
+
+  toastContent.textContent = message;
+  toast.classList.add("show", type);
+
   setTimeout(() => {
-    toastMessage.value = '';
-    toastType.value = '';
+    toast.classList.remove("show");
   }, 3000);
-};
+}
 
 onMounted(() => {
   const stored = localStorage.getItem("predictionResult");
@@ -32,12 +34,11 @@ onMounted(() => {
     const result = JSON.parse(stored);
     predictionLabel.value = result.label;
     predictionConfidence.value = result.confidence;
+    showToast(`Prediction: Your image is most likely ${predictionLabel.value}!`, "info");
   }
-});
 
-onMounted(() => {
   const storedData = localStorage.getItem('submittedProperty');
-  
+
 
   let map = L.map('map').setView([18.0155, -76.8766], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -67,16 +68,16 @@ onMounted(() => {
           getAmenities(lat, lon);
         } else {
           errorMsg.value = 'Could not locate address on the map.';
-          flashMessage(errorMsg);
+          showToast(errorMsg.value, 'error');
         }
       })
       .catch(() => {
         errorMsg.value = 'Error fetching map location.';
-        flashMessage(errorMsg);
+        showToast(errorMsg.value, 'error');
       });
   } else {
     errorMsg.value = 'No property data found. Submit a property first.';
-    flashMessage(errorMsg);
+    showToast(errorMsg.value, 'error');
   }
 
   function getAmenities(lat, lon) {
@@ -150,149 +151,139 @@ onMounted(() => {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
-    <transition name="fade">
-        <div v-if="errorMsg" class="error-message">
-            {{ errorMsg }}
-        </div>
-    </transition>
 
-    <transition name="fade">
-      <div v-if="predictionLabel" class="alert alert-info">
-        Prediction: Your image is most likely {{ predictionLabel }}
-      </div>
-    </transition>
-
-    <!-- Toast Message -->
-    <div v-if="toastMessage" :class="['toast', toastType === 'error' ? 'toast-error' : 'toast-success']">
-      <div class="toast-content">{{ toastMessage }}</div>
-    </div>
+  <div id="toast" class="toast">
+    <div class="toast-content"></div>
+  </div>
 
   <div class="map-info">
-      <h3>Explore the Map to View Nearby Amenities</h3>
-      <p>Use the map below to discover nearby amenities, including restaurants, shops, and other services in your area.</p>
+    <h3>Explore the Map to View Nearby Amenities</h3>
+    <p>Use the map below to discover nearby amenities, including restaurants, shops, and other services in your area.
+    </p>
   </div>
 
-    <div class="main-content">
-      <main class="dashboard">
-        <div class="container">
-          <div id="map" style="height: 450px; width: 900px; border-radius: var(--radius); box-shadow: var(--shadow);"></div>
-        </div>
-      </main>
-    </div>
-
-    
-    <div id="amenitiesCarousel" class="carousel slide">
-      
-  <div class="carousel-inner">
-    
-
-    <div class="carousel-item active">
-      <div class="d-flex justify-content-center flex-wrap gap-3">
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title"><i class="bi bi-house-door me-2"></i> Restaurants</h5>
-            <ul id="restaurants-list" class="list-unstyled mb-0"></ul>
-          </div>
-        </div>
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title"><i class="bi bi-building me-2"></i> Schools</h5>
-            <ul id="school-list" class="list-unstyled mb-0"></ul>
-          </div>
-        </div>
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title"><i class="bi bi-buildings"></i> Places of Worship</h5>
-            <ul id="place-of-worship-list" class="list-unstyled mb-0"></ul>
-          </div>
+  <div class="main-content">
+    <main class="dashboard">
+      <div class="container">
+        <div id="map" style="height: 450px; width: 900px; border-radius: var(--radius); box-shadow: var(--shadow);">
         </div>
       </div>
-    </div>
-
-    <div class="carousel-item">
-      <div class="d-flex justify-content-center flex-wrap gap-3">
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title"><i class="bi bi-hospital me-2"></i> Hospitals</h5>
-            <ul id="hospital-list" class="list-unstyled mb-0"></ul>
-          </div>
-        </div>
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title"><i class="bi bi-cup-straw me-2"></i> Fast Food</h5>
-            <ul id="fast-food-list" class="list-unstyled mb-0"></ul>
-          </div>
-        </div>
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title"><i class="bi bi-bank me-2"></i> Banks</h5>
-            <ul id="bank-list" class="list-unstyled mb-0"></ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="carousel-item">
-      <div class="d-flex justify-content-center flex-wrap gap-3">
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title"><i class="bi bi-capsule-pill"></i> Pharmacies</h5>
-            <ul id="pharmacy-list" class="list-unstyled mb-0"></ul>
-          </div>
-        </div>
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title"><i class="bi bi-shield-lock me-2"></i> Police Stations</h5>
-            <ul id="police-list" class="list-unstyled mb-0"></ul>
-          </div>
-        </div>
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title"><i class="bi bi-person-circle me-2"></i> Doctors</h5>
-            <ul id="doctors-list" class="list-unstyled mb-0"></ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="carousel-item">
-      <div class="d-flex justify-content-center flex-wrap gap-3">
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title"><i class="bi bi-shop me-2"></i> Supermarkets</h5>
-            <ul id="supermarket-list" class="list-unstyled mb-0"></ul>
-          </div>
-        </div>
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title"><i class="bi bi-activity me-2"></i> Fitness Centres</h5>
-            <ul id="fitness-centre-list" class="list-unstyled mb-0"></ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    </main>
   </div>
 
-  <button class="carousel-control-prev" type="button" data-bs-target="#amenitiesCarousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Previous</span>
-  </button>
 
-  <button class="carousel-control-next" type="button" data-bs-target="#amenitiesCarousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Next</span>
-  </button>
-</div>
+  <div id="amenitiesCarousel" class="carousel slide">
 
-<div class="floating-icon" @click="showEvaluator = true">
-  <i class="bi bi-cash-coin"></i>
-</div>
-
-<PriceEvaluator v-if="showEvaluator" @close="showEvaluator = false" />
+    <div class="carousel-inner">
 
 
-<transition name="fade">
+      <div class="carousel-item active">
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-house-door me-2"></i> Restaurants</h5>
+              <ul id="restaurants-list" class="list-unstyled mb-0"></ul>
+            </div>
+          </div>
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-building me-2"></i> Schools</h5>
+              <ul id="school-list" class="list-unstyled mb-0"></ul>
+            </div>
+          </div>
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-buildings"></i> Places of Worship</h5>
+              <ul id="place-of-worship-list" class="list-unstyled mb-0"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-item">
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-hospital me-2"></i> Hospitals</h5>
+              <ul id="hospital-list" class="list-unstyled mb-0"></ul>
+            </div>
+          </div>
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-cup-straw me-2"></i> Fast Food</h5>
+              <ul id="fast-food-list" class="list-unstyled mb-0"></ul>
+            </div>
+          </div>
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-bank me-2"></i> Banks</h5>
+              <ul id="bank-list" class="list-unstyled mb-0"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-item">
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-capsule-pill"></i> Pharmacies</h5>
+              <ul id="pharmacy-list" class="list-unstyled mb-0"></ul>
+            </div>
+          </div>
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-shield-lock me-2"></i> Police Stations</h5>
+              <ul id="police-list" class="list-unstyled mb-0"></ul>
+            </div>
+          </div>
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-person-circle me-2"></i> Doctors</h5>
+              <ul id="doctors-list" class="list-unstyled mb-0"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-item">
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-shop me-2"></i> Supermarkets</h5>
+              <ul id="supermarket-list" class="list-unstyled mb-0"></ul>
+            </div>
+          </div>
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-activity me-2"></i> Fitness Centres</h5>
+              <ul id="fitness-centre-list" class="list-unstyled mb-0"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#amenitiesCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+
+    <button class="carousel-control-next" type="button" data-bs-target="#amenitiesCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+
+  <div class="floating-icon" @click="showEvaluator = true">
+    <i class="bi bi-cash-coin"></i>
+  </div>
+
+  <PriceEvaluator v-if="showEvaluator" @close="showEvaluator = false" />
+
+
+  <transition name="fade">
     <div v-if="showPopup" class="popup-overlay" @click.self="showPopup = false">
       <div class="popup-content">
         <h5 class="mb-3">Price Evaluator</h5>
@@ -306,23 +297,22 @@ onMounted(() => {
 
 <style scoped>
 .toast {
-  display: none;
   position: fixed;
-  bottom: 20px;
-  left: 20px;
+  top: 120px;
+  right: 30px;
   background: #333;
   color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  z-index: 1000;
+  padding: 5px 10px;
+  border-radius: 5px;
+  opacity: 0;
   transition: opacity 0.3s ease;
+  z-index: 9999;
+  max-height: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .toast.show {
-  display: block;
-}
-.toast-content {
-  font-size: 1rem;
+  opacity: 1;
 }
 
 .floating-icon {
@@ -339,7 +329,7 @@ onMounted(() => {
   justify-content: center;
   font-size: 1.5rem;
   z-index: 1000;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -348,28 +338,24 @@ onMounted(() => {
   background-color: #3aa0bb;
 }
 
-
-
-.error-message {
-    color: red;
-    background-color: #f8d7da;
-    padding: 10px;
-    border-radius: 5px;
-    width: 25%;
-    top: 115px;
-    right: 10px;
-    text-align: center;
-    position: absolute;
-    z-index: 10;
+.nav-button {
+  text-decoration: none;
+  font-size: 16px;
+  top: 70px;
+  right: 10px;
+  position: absolute;
+  background-color: gray;
+  color: #fff;
+  border-color: gray;
+  z-index: 10;
 }
 
-.fade-leave-active {
-  transition: opacity 1s ease-in-out;
+.nav-button:hover {
+  background-color: black;
+  color: #fff;
+  border-color: black;
 }
 
-.fade-leave-to {
-  opacity: 0;
-}
 .card {
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -406,17 +392,17 @@ onMounted(() => {
 }
 
 .carousel-control-prev-icon,
-    .carousel-control-next-icon {
-      background-color: rgba(0, 0, 0, 0.6);
-      border-radius: 50%;
-      padding: 1rem;
-    }
+.carousel-control-next-icon {
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  padding: 1rem;
+}
 
 .carousel-inner {
   display: flex;
   align-items: center;
   transition: height 0.5s ease;
-  min-height: 300px; 
+  min-height: 300px;
   padding-bottom: 5%;
 }
 
@@ -436,7 +422,7 @@ onMounted(() => {
   border-radius: 1rem;
   width: 300px;
   max-width: 90%;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   animation: pop 0.3s ease-in-out;
 }
 
@@ -445,11 +431,10 @@ onMounted(() => {
     transform: scale(0.9);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
   }
 }
-
-
 </style>

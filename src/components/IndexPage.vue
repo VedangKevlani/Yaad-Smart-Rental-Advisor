@@ -18,33 +18,19 @@ defineProps({
   isDarkmode: Boolean,
 });
 
-watch(
-  () => currentUser.value?.displayName,
-  (newName) => {
-    const hasWelcomed = localStorage.getItem("hasWelcomed");
-    if (newName && newName !== "" && !hasWelcomed) {
-      showWelcome.value = true;
-      displayName.value = currentUser.value.displayName;
 
-      localStorage.setItem("hasWelcomed", "true"); // prevent re-showing
-      setTimeout(() => {
-        showWelcome.value = false;
-      }, 3000);
-    }
-  },
-  { immediate: true }
-);
 
-document.addEventListener("DOMContentLoaded", () => {
+onMounted(() => {
   const propertyImageInput = document.getElementById("propertyImage");
-  const resultDiv = document.getElementById("result");
   const spinner = document.getElementById("spinner");
   const propertyForm = document.getElementById("propertyForm");
-  const toast = document.getElementById("toast");
 
-function showToast(message, type = "success") {
-  const toast = document.querySelector("#toast");  // Use the correct ID
-  const toastContent = toast.querySelector(".toast-content");  // Ensure correct content target
+  localStorage.removeItem("predictionResult");
+  
+
+function showToast(message, type) {
+  const toast = document.querySelector("#toast");  
+  const toastContent = toast.querySelector(".toast-content");  
 
   if (!toast || !toastContent) {
     console.error("Toast element or content not found.");
@@ -52,13 +38,11 @@ function showToast(message, type = "success") {
   }
 
   toastContent.textContent = message;
-  toast.classList.add("show", type);  // Add 'show' class for visibility
-
-  console.log("Toast visible:", toast.classList.contains("show"));
+  toast.classList.add("show", type);  
 
   setTimeout(() => {
-    toast.classList.remove("show");
-  }, 3000);  // Hide after 3 seconds
+    toast.classList.remove("show", type);
+  }, 3000);  
 }
 
   function displayPrediction(label, confidence) {
@@ -72,6 +56,7 @@ function showToast(message, type = "success") {
 
   propertyForm.addEventListener("submit", async function (e) {
     e.preventDefault();
+    
 
     const address = document.getElementById("address").value;
     const bedrooms =
@@ -101,12 +86,11 @@ function showToast(message, type = "success") {
       });
 
       const text = await response.text(); // Read as text first
-      console.log("Raw response:", text);
+      
 
       let data;
       try {
         data = JSON.parse(text); // Try parsing manually
-        console.log("Parsed JSON:", data.label);
         const prediction = {
         label: data.label,
         confidence: data.confidence,
@@ -143,7 +127,7 @@ function showToast(message, type = "success") {
   }
 }
 
-    showToast("We're analyzing your property");
+    showToast("We're analyzing your property", "info");
 
     const formData = {
       address,
@@ -164,20 +148,29 @@ function showToast(message, type = "success") {
       el.style.opacity = 1;
     }, 100);
   });
+
+
+watch(
+  () => currentUser.value?.displayName,
+  (newName) => {
+    const hasWelcomed = localStorage.getItem("hasWelcomed");
+    if (newName && newName !== "" && !hasWelcomed) {
+      showWelcome.value = true;
+      displayName.value = currentUser.value.displayName.split(" ")[0];
+
+      localStorage.setItem("hasWelcomed", "true"); // prevent re-showing
+      showToast(`Welcome back, ${displayName.value}!!`, "info");
+    }
+  },
+  { immediate: true }
+);
+
 });
 </script>
 
 <template>
   <section class="hero">
     <div class="hero-content">
-      <transition name="fade">
-        <div
-          v-if="showWelcome"
-          :class="['alert', isDarkmode ? 'alert-dark' : 'alert-info']"
-        >
-          Welcome back, {{ displayName }}!
-        </div>
-      </transition>
 
       <transition name="fade">
         <div
@@ -210,9 +203,6 @@ function showToast(message, type = "success") {
 
 <PriceEvaluator v-if="showEvaluator" @close="showEvaluator = false" />
 
-  <!-- <div id="toast" class="toast">
-    <span class="toast-content"></span>
-  </div> -->
 
     <div class="form-container slide-up">
       <form id="propertyForm" class="property-form">
@@ -414,7 +404,7 @@ function showToast(message, type = "success") {
         <div id="result" class="result"></div>
 
         <button type="submit" class="submit-button">
-          <span>Analyze Property Value</span>
+          <span>View Results</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -524,15 +514,17 @@ function showToast(message, type = "success") {
 <style scoped>
 .toast {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  top: 120px;
+  right: 30px;
   background: #333;
   color: white;
-  padding: 10px 15px;
+  padding: 5px 10px;
   border-radius: 5px;
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: 9999;
+  max-height: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .toast.show {

@@ -51,7 +51,10 @@ const router = createRouter({
       name: 'myprofile',
       component: MyProfile
     }
-  ]
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    return { top: 0 };
+  },
 })
 
 export default router

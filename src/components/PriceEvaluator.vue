@@ -31,21 +31,17 @@
 
         <div class="form-group form-grid">
           <label v-for="feature in binaryFeatures" :key="feature" class="form-checkbox-label">
-            <input
-              v-model="form[feature]"
-              type="checkbox"
-              :true-value="1"
-              :false-value="0"
-              :id="feature"
-              class="form-checkbox-input"
-            />
+            <input v-model="form[feature]" type="checkbox" :true-value="1" :false-value="0" :id="feature"
+              class="form-checkbox-input" />
             <span>{{ formatLabel(feature) }}</span>
           </label>
         </div>
       </div>
 
       <div class="popup-footer">
+
         <button @click="evaluate" class="popup-button">Evaluate</button>
+
 
         <div v-if="result" class="popup-result">
           <p class="result-predicted-value">
@@ -55,6 +51,10 @@
             {{ verdictText }}
           </p>
         </div>
+
+        <div v-show="isLoading" ref="spinner" class="spinner-container">
+          <div id="spinner" class="spinner"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -62,12 +62,18 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/assets/js/firebase.js';
+
+defineProps({
+  isDarkmode: Boolean,
+});
 
 const userID = localStorage.getItem('userID');
 
 const result = ref(null);
+const isLoading = ref(false);
+
 
 const form = ref({
   'Square Footage': '',
@@ -120,15 +126,21 @@ const verdictText = computed(() => {
 
 
 const evaluate = async () => {
-  const response = await fetch('http://localhost:5000/api/evaluate', {
+  isLoading.value = true;
+  result.value = null;
+
+ 
+  const response = await fetch('http://localhost:3000/api/evaluate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(form.value),
   })
   const data = await response.json()
+  isLoading.value = false;
+
 
   if (data.predicted_value !== undefined) {
-    await setDoc(doc(db, 'price-evaluator-queries', userID), {
+    await addDoc(collection(db, 'price-evaluator-queries'), {
       uid: userID,
       square_footage: form.value['Square Footage'],
       bedrooms: form.value.Bedrooms,
@@ -144,7 +156,7 @@ const evaluate = async () => {
       waterfront_ocean: form.value['Waterfront_-_Ocean'] ? 'yes' : 'no',
       predicted_value: data.predicted_value,
       createdAt: serverTimestamp(),
-      });
+    });
     result.value = data
   } else {
     result.value = null
@@ -153,6 +165,29 @@ const evaluate = async () => {
 </script>
 
 <style scoped>
+.spinner {
+  margin-top: 1rem;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ccc;
+  border-top: 4px solid #40a7c3;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -178,6 +213,11 @@ const evaluate = async () => {
   flex-direction: column;
   overflow: hidden;
 }
+
+.dark-mode .popup-content {
+  background-color: #0f172a;
+}
+
 
 .popup-header {
   display: flex;
@@ -258,6 +298,7 @@ const evaluate = async () => {
 .popup-footer {
   margin-top: 1.5rem;
   text-align: center;
+  justify-content: center;
 }
 
 .popup-button {

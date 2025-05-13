@@ -1,5 +1,11 @@
 flask
 flask-cors
-pandas
-scikit-learn
+matplotlib
 numpy
+opencv-python
+pandas
+Pillow
+scikit-learn
+tensorflow
+
+

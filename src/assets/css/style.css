@@ -243,7 +243,7 @@ input:hover:not(:focus) {
   border-top: 4px solid #40a7c3;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  display: none;
+  display: block;
 }
 
 @keyframes spin {
@@ -661,17 +661,19 @@ position: relative;
 /* Toast Message */
 .toast {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  top: 120px;
+  right: 30px;
   transform: translateY(150%);
-  background-color: var(--white);
-  color: var(--dark);
+  background-color: var(--dark);
+  color: var(--white);
   padding: 1rem;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   transition: transform 0.3s ease;
   z-index: 1000;
   max-width: 300px;
+  max-height: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .toast.show {
@@ -684,6 +686,14 @@ position: relative;
 
 .toast.error {
   border-left: 4px solid #ef4444;
+}
+
+.toast.info {
+  border-left: 4px solid #0dcaf0;
+}
+
+.toast.warning {
+  border-left: 4px solid #ffc107;
 }
 
 /* Animations */
@@ -759,23 +769,7 @@ position: relative;
   gap: 20px;  /* Space between links */
 }
 
-.nav-button {
-  text-decoration: none;
-  font-size: 16px;
-  top: 70px;
-  right: 10px;
-  position: absolute;
-  background-color: gray;
-  color: #fff;
-  border-color: gray;
-  z-index: 10;
-}
 
-.nav-button:hover {
-  background-color: black;
-  color: #fff;
-  border-color: black;
-}
 
 .nav-button.signup {
   color: black;
@@ -1006,7 +1000,7 @@ justify-content: center;
 
 
 .tool-button {
-background-color: var(--primary);
+background-color: var(--primary-dark);
 display: flex;
 justify-content: center;
 color: var(--white);
@@ -1021,7 +1015,7 @@ transition: background-color var(--transition);
 }
 
 .tool-button:hover {
-background-color: var(--primary-dark);
+background-color: var(--dark);
 }
 
 .result {

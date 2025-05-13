@@ -58,6 +58,23 @@ const updateThemeClass = () => {
 
 
 <style>
+.btn.nav-button {
+  text-decoration: none;
+  font-size: 16px;
+  top: 70px;
+  right: 10px;
+  position: absolute;
+  background-color: gray;
+  color: #fff;
+  border-color: gray;
+  z-index: 10;
+}
+
+.btn.nav-button:hover {
+  background-color: black;
+  color: #fff;
+  border-color: black;
+}
 
 body {
   padding-top: 75px;

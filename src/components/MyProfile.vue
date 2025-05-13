@@ -1,28 +1,33 @@
 <script setup>
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/assets/js/firebase.js';
-import { ref, onMounted } from 'vue';  
+import { ref, onMounted, nextTick } from 'vue';
 import { currentUser } from '@/assets/js/auth.js';
 
 const userID = localStorage.getItem('userID');
 const queries = ref([]);
 
-async function getPriceEvaluatorQueries() {
-    const price_evaluator_queries = query(collection(db, 'price-evaluator-queries'), where('uid', '==', userID));
-    const query_result = await getDocs(price_evaluator_queries);
 
-    query_result.forEach((doc) => {
-        queries.value.push(doc.data());
-    });
+async function getPriceEvaluatorQueries() {
+  const price_evaluator_queries = query(collection(db, 'price-evaluator-queries'), where('uid', '==', userID));
+  const query_result = await getDocs(price_evaluator_queries);
+
+  query_result.forEach((doc) => {
+    queries.value.push(doc.data());
+  });
+
 }
 
 onMounted(() => {
-    getPriceEvaluatorQueries();
+  getPriceEvaluatorQueries();
 });
+
+
+
 </script>
 
 <template>
-  <div class="main-body">
+  <div class="main-body" v-if="currentUser">
     <div class="profile-header">
       <p id="name">{{ currentUser.displayName }}</p>
       <p id="email">{{ currentUser.email }}</p>
@@ -30,12 +35,12 @@ onMounted(() => {
 
     <h2>Previous Price Evaluator Queries</h2>
 
-    <div class="price-evaluator-queries" v-for="(query, index) in queries" :key="index">
-      <details class="query">
+    <div class="price-evaluator-queries">
+      <details class="query" v-for="(query, index) in queries" :key="query.id || index">
         <summary>
           Query {{ index + 1 }} - {{ query.square_footage }} sq ft, ${{ query.predicted_value }}
         </summary>
-        
+
         <div class="option">
           <label for="square_footage">Square Footage:</label>
           <p>{{ query.square_footage }} sq ft</p>
@@ -107,72 +112,71 @@ onMounted(() => {
 
 <style scoped>
 .main-body {
-    padding: 2rem;
-    width: 100%;
-    height: 100%;
-    min-height: 1000px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  padding: 2rem;
+  max-width: 100%;
+  height: 100%;
+  min-height: 1000px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
 }
 
 .price-evaluator-queries {
-    width: 100%;
-    height: 100%;
-    padding: 1rem;
-    display: grid;
-    grid-template-columns: repeat(3,1fr);
-    gap: 30px 40px;
-    align-items: center;
-    justify-content: center;
-    margin-top: 30px;
+  width: 100%;
+  align-items: start;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 70px 40px;
+  margin-top: 30px;
+  margin-left: 190px;
 }
 
 .query {
-    width: 60%;
-    height: auto;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: left;
-    justify-content: center;
-    transition: all 0.3s ease-in-out;
-    padding: 1rem;
+  width: 60%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  transition: all 0.3s ease-in-out;
+  padding: 1rem;
 }
 
 .query:hover {
-    transform: scale(1.05);
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .dark-mode .query {
-    background-color: #0f172a;
-    border: #0f172a;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9);
+  background-color: #0f172a;
+  border: #0f172a;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9);
 }
 
 .option {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 
 .option label {
-    font-size: 16px;
-    font-weight: 600;
-    color: #333;
-    margin-right: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-right: 10px;
 }
 
 .option p {
-    font-size: 16px;
-    font-weight: 400;
-    color: #333;
+  font-size: 16px;
+  font-weight: 400;
+  color: #333;
 }
 
-.dark-mode .option *{
-    color: white;
+.dark-mode .option * {
+  color: white;
 }
 
 .profile-header {
@@ -195,41 +199,42 @@ onMounted(() => {
 }
 
 .dark-mode .profile-header {
-    border: #0f172a;
-    background-color: #0f172a;
-   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9);
+  border: #0f172a;
+  background-color: #0f172a;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9);
 }
 
-.dark-mode #name, #email {
-    color: white;
+.dark-mode #name,
+#email {
+  color: white;
 }
 
 #name {
-    font-size: 24px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 0.5rem;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
 }
 
 #email {
-    font-size: 14px;
-    font-weight: 400;
-    color: #666;
+  font-size: 14px;
+  font-weight: 400;
+  color: #666;
 }
 
 .query summary {
-    font-weight: 600;
-    font-size: 16px;
-    margin-bottom: 0.5rem;
-    cursor: pointer;
-    outline: none;
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  outline: none;
 }
 
 .query[open] {
-    background-color: #f9f9f9;
+  background-color: #f9f9f9;
 }
 
 .dark-mode .query[open] {
-    background-color: #1e293b;
+  background-color: #1e293b;
 }
 </style>
