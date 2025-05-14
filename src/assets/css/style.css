@@ -73,10 +73,12 @@ h1, h2, h3, h4, h5, h6 {
 .login-container {
   width: 400px;
   border-color: white;
+  border-radius: 15px;
 }
 
 .dark-mode .login-container {
   border-color: #1e293b;
+  
 }
 
 .login-container h2 {
@@ -118,11 +120,12 @@ input:hover:not(:focus) {
 }
 
 .submit-button {
-  width: 100%;
+  width: 40%;
   padding: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  justify-self: center;
   background-color: var(--primary);
   color: var(--white);
   border: none;
@@ -235,7 +238,7 @@ input:hover:not(:focus) {
 }
 
 /* Spinner Styles */
-.spinner {
+#spinner {
   margin-top: 1rem;
   width: 40px;
   height: 40px;
@@ -255,13 +258,11 @@ input:hover:not(:focus) {
   justify-content: center;
   align-items: center;
 }
+
+.dark-mode #spinner {
+  border-top: 4px solid var(--dark);
+}
 /* Hero Section */
-
-
-
-
-
-
 
 /* Landing Section */
 
@@ -504,41 +505,6 @@ color: #f1f5f9;
   box-shadow: 0 0 0 2px rgba(64, 167, 195, 0.2);
 }
 
-.submit-button {
-  width: 100%;
-  padding: 0.75rem 1rem;           /* Add padding to left/right */
-  display: inline-flex;             /* Ensure button resizes properly */
-  align-items: center;             /* Vertically center text and icon */
-  justify-content: center;         /* Horizontally center content */
-  gap: 8px;                        /* Space between text and icon */
-  background-color: var(--primary);
-  color: var(--white);
-  border: none;
-  border-radius: var(--radius);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color var(--transition);
-}
-
-.submit-button:hover {
-  background-color: var(--primary-dark);
-}
-
-
-.chevron-icon {
-  font-size: 1.2rem;               /* Optional: scale the icon size */
-  line-height: 1;                   /* Prevent vertical misalignment */
-  display: inline-flex;             /* Make the chevron a flex container */
-  align-items: center;             /* Center vertically */
-  justify-content: center;         /* Center horizontally */
-  transition: transform var(--transition);
-}
-
-.submit-button:hover .chevron-icon {
-  transform: translateX(8px);       /* Moves the chevron on hover */
-}
-
 
 
 /* How It Works Section */
@@ -663,37 +629,46 @@ position: relative;
   position: fixed;
   top: 120px;
   right: 30px;
-  transform: translateY(150%);
-  background-color: var(--dark);
+  transform: translateX(120%);
+  background-color: grey;
   color: var(--white);
-  padding: 1rem;
+  padding: 5px 10px;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   transition: transform 0.3s ease;
   z-index: 1000;
-  max-width: 300px;
-  max-height: 40px;
+  max-width: 400px;
+  height: 40px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
+  font-weight: bold;
+  text-align: start;
+  opacity: 1;
+}
+
+.dark-mode .toast {
+  background-color: var(--dark);
+  color: var(--white);
 }
 
 .toast.show {
-  transform: translateY(0);
+  transform: translateX(0);
 }
 
 .toast.success {
-  border-left: 4px solid #10b981;
+  border-left: 14px solid #10b981;
 }
 
 .toast.error {
-  border-left: 4px solid #ef4444;
+  border-left: 14px solid #ef4444;
 }
 
 .toast.info {
-  border-left: 4px solid #0dcaf0;
+  border-left: 14px solid #0dcaf0;
 }
 
 .toast.warning {
-  border-left: 4px solid #ffc107;
+  border-left: 14px solid #ffc107;
 }
 
 /* Animations */
@@ -1057,22 +1032,6 @@ body.dark-mode .input-field {
 .tool-box:hover {
 transform: translateY(-4px);
 box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-}
-
-/* Spinner Styles */
-.spinner {
-margin-top: 1rem;
-width: 40px;
-height: 40px;
-border: 4px solid #ccc;
-border-top: 4px solid #40a7c3;
-border-radius: 50%;
-animation: spin 1s linear infinite;
-display: none;
-}
-
-@keyframes spin {
-to { transform: rotate(360deg); }
 }
 
 /* Button animation */

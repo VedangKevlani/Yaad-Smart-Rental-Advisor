@@ -79,7 +79,16 @@ const props = defineProps({
   background-color: #1f2a3a !important;
 }
 
-.nav-link.active {
+.nav-link{
   color: #fff !important;
 }
+
+.nav-link:hover {
+  color: #ffcc00b4 !important;
+}
+
+.nav-link.active {
+  color: #ffcc00 !important;
+}
+
 </style>

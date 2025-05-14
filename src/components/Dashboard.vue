@@ -80,6 +80,31 @@ onMounted(() => {
     showToast(errorMsg.value, 'error');
   }
 
+  function getColorForAmenity(amenity) {
+    const colors = [
+      'red', 'blue', 'purple', 'green', 'orange', 'darkblue',
+      'pink', 'black', 'brown', 'yellow', 'teal'
+    ];
+    let hash = 0;
+    for (let i = 0; i < amenity.length; i++) {
+      hash += amenity.charCodeAt(i);
+    }
+    return colors[hash % colors.length];
+  }
+
+
+  function createAmenityMarker(amenityType) {
+    const color = getColorForAmenity(amenityType);
+    return L.divIcon({
+      className: 'custom-div-icon',
+      html: `<div style="background-color:${color}; width:14px; height:14px; border-radius:50%; border:2px solid white;"></div>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+    });
+  }
+
+
+
   function getAmenities(lat, lon) {
     const amenityTypes = [
       { key: 'restaurant', listId: 'restaurants-list', label: 'Unnamed Restaurant' },
@@ -118,24 +143,26 @@ onMounted(() => {
 
           data.elements.forEach(element => {
             const name = element.tags?.name || label;
-
             if (name.toLowerCase().startsWith('unnamed')) return;
 
             const latLng = element.type === 'node'
               ? [element.lat, element.lon]
               : [element.center.lat, element.center.lon];
 
-            L.marker(latLng)
-              .addTo(map)
-              .bindPopup(`<strong>${name}</strong>`);
+            // Create and add marker
+            const marker = L.marker(latLng, {
+              icon: createAmenityMarker(key)
+            }).addTo(map);
 
+            marker.bindPopup(`<strong>${name}</strong>`);
+
+            // Add to list
             const li = document.createElement('li');
             li.textContent = name;
             list.appendChild(li);
-
-            const spacer = document.createElement('br');
-            list.appendChild(spacer);
+            list.appendChild(document.createElement('br'));
           });
+
         })
         .catch(err => {
           console.error(`Error fetching ${key}:`, err);
@@ -265,15 +292,18 @@ onMounted(() => {
 
     </div>
 
-    <button class="carousel-control-prev" type="button" data-bs-target="#amenitiesCarousel" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <button class="custom-carousel-btn carousel-control-prev" type="button" data-bs-target="#amenitiesCarousel"
+      data-bs-slide="prev">
+      <span class="custom-arrow">&#10094;</span>
       <span class="visually-hidden">Previous</span>
     </button>
 
-    <button class="carousel-control-next" type="button" data-bs-target="#amenitiesCarousel" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <button class="custom-carousel-btn carousel-control-next" type="button" data-bs-target="#amenitiesCarousel"
+      data-bs-slide="next">
+      <span class="custom-arrow">&#10095;</span>
       <span class="visually-hidden">Next</span>
     </button>
+
   </div>
 
   <div class="floating-icon" @click="showEvaluator = true">
@@ -296,6 +326,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.custom-div-icon {
+  text-align: center;
+}
+
 .toast {
   position: fixed;
   top: 120px;
@@ -391,20 +425,54 @@ onMounted(() => {
   margin-bottom: 1rem;
 }
 
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-  background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 50%;
-  padding: 1rem;
+.dark-mode .card-body {
+  background-color: #0f172a;
+  color: white;
 }
 
-.carousel-inner {
+.dark-mode .card {
+  border: 1px solid #0c1431;
+}
+
+.carousel {
+  margin-bottom: 30px;
+}
+
+.custom-carousel-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
-  transition: height 0.5s ease;
-  min-height: 300px;
-  padding-bottom: 5%;
+  justify-content: center;
+  transition: background-color 0.3s;
+  border: none;
+  position: absolute;
+  top: 30%;
+  transform: translateY(-50%);
+  z-index: 1;
 }
+
+.carousel-control-prev.custom-carousel-btn {
+  left: 120px;
+}
+
+.carousel-control-next.custom-carousel-btn {
+  right: 120px;
+}
+
+.custom-carousel-btn:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.custom-arrow {
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+}
+
+
 
 .popup-overlay {
   position: fixed;

@@ -5,15 +5,13 @@ from PIL import Image as PilImage
 from flask_cors import CORS
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-import os
 import logging
 
 app = Flask(__name__)
-CORS(app)  # This allows cross-origin requests from any origin
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit, adjust if needed
+CORS(app) 
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  
 logging.basicConfig(level=logging.DEBUG)
 
-# Load the model once when the server starts
 model = tf.keras.models.load_model('property_classifier_model.h5')
 
 @app.route('/check-image', methods=['POST'])
@@ -36,10 +34,9 @@ def predict():
 
         # Make the prediction
         prediction = model.predict(img_array)[0][0]
-        label = "Real" if prediction >= 0.5 else "Fake"
+        label = "real" if prediction >= 0.5 else "fake"
         confidence = float(prediction if prediction >= 0.5 else 1 - prediction)
 
-        # Send back the result to the frontend
         return jsonify({
             "label": label,
             "confidence": round(confidence * 100, 2)
@@ -104,5 +101,3 @@ def evaluate():
         return jsonify({'error': str(e)}), 500
 
 
-if __name__ == '__main__':
-    app.run(debug=True, port = 3000)

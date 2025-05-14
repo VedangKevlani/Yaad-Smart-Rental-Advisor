@@ -31,6 +31,12 @@ const {
   cashFlowResult,
   calculateCashFlow
 } = useFinancialTools()
+
+loanResult.value = null;
+investmentResult.value = null;
+rentVsBuyResult.value = null;
+rentalYieldResult.value = null;
+cashFlowResult.value = null;
 </script>
 
 

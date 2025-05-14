@@ -35,7 +35,7 @@ export function useFinancialTools() {
     const monthly = (principal * x * rate) / (x - 1)
 
     loanResult.value = (!isNaN(monthly) && isFinite(monthly) && monthly > 0)
-      ? `Your monthly payment will be: $${monthly.toFixed(2)}`
+      ? `Your monthly payment will be: $${monthly.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`
       : 'Please enter valid values'
   }
 
@@ -47,7 +47,7 @@ export function useFinancialTools() {
     const future = principal * Math.pow(1 + rate, time)
 
     investmentResult.value = (!isNaN(future) && future > 0)
-      ? `Your investment will grow to: $${future.toFixed(2)}`
+      ? `Your investment will grow to: $${future.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`
       : 'Please enter valid values'
   }
 
@@ -61,7 +61,7 @@ export function useFinancialTools() {
     const buyCost = price * 0.20 + (price * rate * ownYears)
 
     rentVsBuyResult.value = (!isNaN(rentTotal) && !isNaN(buyCost))
-      ? `${buyCost < rentTotal ? "Buying is cheaper long-term." : "Renting is cheaper long-term."} Rent total: $${rentTotal.toFixed(2)} vs Buy estimate: $${buyCost.toFixed(2)}`
+      ? `${buyCost < rentTotal ? "Buying is cheaper long-term." : "Renting is cheaper long-term."} Rent total: $${rentTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} vs Buy estimate: $${buyCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`
       : 'Please enter valid values'
   }
 
