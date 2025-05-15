@@ -748,19 +748,6 @@ position: relative;
   font-size: 24px;
 }
 
-.nav-links {
-  display: flex;
-  justify-content: right;
-  flex-grow: 1;
-  gap: 20px;  /* Space between links */
-}
-
-.nav-links-dashboard {
-  display: flex;
-  justify-content: center;
-  flex-grow: 1;
-  gap: 20px;  /* Space between links */
-}
 
 
 

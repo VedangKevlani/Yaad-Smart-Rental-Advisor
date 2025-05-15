@@ -63,16 +63,8 @@ const props = defineProps({
 
 <style>
 
-.navbar:not(.dark-theme) {
+.navbar {
   background-color: #48b5d0 !important;
-}
-
-.navbar:not(.dark-theme) .nav-link {
-  color: white !important;
-}
-
-.dark-theme .nav-link {
-  color: #fff !important;
 }
 
 .navbar-dark.dark-theme {
@@ -88,7 +80,6 @@ const props = defineProps({
 }
 
 .nav-link.active {
-  color: #ffcc00 !important;
+  color: gold !important;
 }
-
 </style>
