@@ -48,10 +48,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .home-icon {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   display: block;
-  margin: auto;
+  margin: 0;
   border-radius: 50%;
   margin-bottom: 1rem;
 }
@@ -225,10 +225,7 @@ input:hover:not(:focus) {
   margin-bottom: 1.5rem;
 }
 
-.home-icon {
-  width: 2rem;
-  height: 2rem;
-}
+
 
 .title {
   font-size: 2.5rem;
@@ -657,6 +654,7 @@ position: relative;
   box-shadow: var(--shadow);
   transition: transform 0.3s ease;
   z-index: 1000;
+  width: 100%;
   max-width: 400px;
   height: 40px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);

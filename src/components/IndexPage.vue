@@ -20,7 +20,7 @@ defineProps({
 const formattedSquareFeet = computed(() => {
   const num = parseFloat(squareFeetInput.value.replace(/,/g, ''));
   if (isNaN(num)) return '';
-  return `${num.toLocaleString()}`;
+  return `${num.toLocaleString()} sq ft`;
 })
 
 const updateSquareFeet = (val) => {
@@ -45,10 +45,6 @@ onMounted(() => {
   const propertyImageInput = document.getElementById("propertyImage");
   const spinner = document.getElementById("spinner");
   const propertyForm = document.getElementById("propertyForm");
-
-
-
-
 
   localStorage.removeItem("predictionResult");
   localStorage.removeItem("submittedProperty");
@@ -79,18 +75,33 @@ onMounted(() => {
   propertyForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     const address = document.getElementById("address").value;
-    const bedrooms = document.getElementById("bedrooms").value || "Not specified";
-    const bathrooms = document.getElementById("bathrooms").value || "Not specified";
-    const squareFeet = document.getElementById("squareFeet").value || "Not specified";
-    const rentCost = document.getElementById("rentCost").value || "Not specified";
-    const imageFile = propertyImageInput.files[0] || null;
+    const bedrooms = document.getElementById("bedrooms").value;
+    const bathrooms = document.getElementById("bathrooms").value;
+    const squareFeet = document.getElementById("squareFeet").value;
+    const rentCost = document.getElementById("rentCost").value;
+    const imageFile = propertyImageInput.files[0];
 
     if (!address) {
-      showToast("Please enter a property address to analyze.", "error");
+      showToast("Please enter a property address to analyze!", "error");
+      return;
+    } else if (!bedrooms) {
+      showToast("Please specify the number of bedrooms!", "error");
+      return;
+    } else if (!bathrooms) {
+      showToast("Please specify the number of bathrooms!", "error");
+      return;
+    } else if (!squareFeet) {
+      showToast("Please specify the size in square feet!", "error");
+      return;
+    } else if (!rentCost) {
+      showToast("Please specify the monthly rent!", "error");
+      return;
+    } else if (!imageFile) {
+      showToast("Please upload the file to be processed!", "error");
       return;
     }
 
-    if (imageFile) {
+    
       const formData = new FormData();
       formData.append("image", imageFile);
       spinner.style.display = "block";
@@ -143,7 +154,6 @@ onMounted(() => {
       } finally {
         spinner.style.display = "none";
       }
-    }
   });
 
 
@@ -207,7 +217,7 @@ onMounted(() => {
                 <span>Address*</span>
               </div>
             </label>
-            <input type="text" id="address" placeholder="Enter property address" required class="input-field" />
+            <input type="text" id="address" placeholder="Enter property address" class="input-field" />
           </div>
 
           <div class="form-row">
@@ -225,7 +235,7 @@ onMounted(() => {
                   <span>Bedrooms*</span>
                 </div>
               </label>
-              <input type="number" id="bedrooms" placeholder="e.g., 2" min="0" step="1" required class="input-field" />
+              <input type="number" id="bedrooms" placeholder="e.g., 2" min="0" step="1" class="input-field" />
             </div>
 
             <div class="form-group">
@@ -243,7 +253,7 @@ onMounted(() => {
                   <span>Bathrooms*</span>
                 </div>
               </label>
-              <input type="number" id="bathrooms" placeholder="e.g., 2" min="0" step="1" required class="input-field" />
+              <input type="number" id="bathrooms" placeholder="e.g., 2" min="0" step="1"  class="input-field" />
             </div>
 
             <div class="form-group">
@@ -273,7 +283,7 @@ onMounted(() => {
               </div>
             </label>
             <input type="text" id="rentCost" :value="formattedRentCost" @input="updateRentCost($event.target.value)"
-              placeholder="e.g., $80,000" min="0" required class="input-field" />
+              placeholder="e.g., $80,000" min="0" class="input-field" />
           </div>
 
           <div class="form-group">

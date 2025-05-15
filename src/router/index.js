@@ -49,13 +49,13 @@ const router = createRouter({
     },
     {
       path: '/investment-tools',
-      name: 'investmenttools',
+      name: 'investment-tools',
       component: InvestmentTools,
       meta: { transition: 'custom' }
     },
     {
       path: '/my-profile',
-      name: 'myprofile',
+      name: 'my-profile',
       component: MyProfile,
       meta: { transition: 'custom' }
     }

@@ -74,7 +74,6 @@ const login = async () => {
       }
       showToast(errorMsg.value, "error");
     }
-
   }
 };
 </script>
@@ -86,17 +85,17 @@ const login = async () => {
         <img class="home-icon" src="../img/yaadlogo.jpg" alt="Yaad logo">
         <h2>Login to Yaad.</h2>
 
-        <form @submit.prevent="login">
+        <form @submit.prevent="login"  autocomplete="off">
           <div class="form-group">
             <label for="email">Email Address</label>
-            <input type="email" id="email" placeholder="Enter your email" v-model="email" required />
+            <input type="email" id="email" placeholder="Enter your email" v-model="email"  autocomplete="off"/>
           </div>
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter your password" v-model="password" required />
+            <input type="password" id="password" placeholder="Enter your password" v-model="password" autocomplete="off"/>
           </div>
           <div class="form-group">
-            <button type="submit" class="submit-button" href="index.html">Sign In <span
+            <button type="submit" class="submit-button">Sign In <span
                 class="chevron-icon">➔</span></button>
           </div>
         </form>

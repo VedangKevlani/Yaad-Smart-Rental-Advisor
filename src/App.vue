@@ -3,34 +3,35 @@ import { RouterLink, RouterView } from 'vue-router'
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
-const transitionName = ref('fade')
-const router = useRouter()
-const showNewComponent = ref(false)
-const currentComponent = ref(null)
-const route = useRoute();
+const transitionName = ref('fade');
+const router = useRouter();
 
 router.afterEach((to, from) => {
   if (from.name === 'login' && to.name === 'signup') {
-    transitionName.value = 'slide-left'
+    transitionName.value = 'slide-left';
   } else if (from.name === 'login' && to.name === 'index') {
-    transitionName.value = 'fade'
+    transitionName.value = 'fade';
   } else if (from.name === 'signup' && to.name === 'login') {
-    transitionName.value = 'slide-right'
+    transitionName.value = 'slide-right';
+  } else if (from.name === 'home' && to.name === 'login') {
+    transitionName.value = 'slide-left';
+  } else if (from.name === 'index' && to.name === 'investment-tools') {
+    transitionName.value = 'slide-left';
+  } else if (from.name === 'investment-tools' && to.name === 'index') {
+    transitionName.value = 'slide-right';
+  } else if (from.name === 'investment-tools' && to.name === 'my-profile') {
+    transitionName.value = 'slide-left';
+  } else if (from.name === 'my-profile' && to.name === 'investment-tools') {
+    transitionName.value = 'slide-right';
+  } else if (from.name === 'index' && to.name === 'my-profile') {
+    transitionName.value = 'slide-left';
+  } else if (from.name === 'my-profile' && to.name === 'index') {
+    transitionName.value = 'slide-right';
   } else {
-    transitionName.value = 'fade'
+    transitionName.value = 'fade';
   }
-})
-
-const isShowingNew = ref(true)
-
-router.beforeEach((to, from, next) => {
-  isShowingNew.value = false
-  setTimeout(() => {
-    isShowingNew.value = true
-  }, 20)
-  next()
 })
 /* - `isDarkmode`: A boolean prop that determines whether the application is in dark mode. */
 const isDarkmode = ref(false);
@@ -59,33 +60,29 @@ const toggleTheme = () => {
 
 // Apply theme class to body
 const updateThemeClass = () => {
-  if (isDarkmode.value){
-      document.body.classList.add('dark-mode');
-      document.body.classList.remove('light-mode');
+  if (isDarkmode.value) {
+    document.body.classList.add('dark-mode');
+    document.body.classList.remove('light-mode');
   } else {
-      document.body.classList.remove('dark-mode');
-      document.body.classList.add('light-mode');
+    document.body.classList.remove('dark-mode');
+    document.body.classList.add('light-mode');
   }
 };
 </script>
 
 <template>
   <AppHeader :isDarkmode="isDarkmode" />
-
-  <main>
-    <button class="btn nav-button" :class="themeClass" @click="toggleTheme">
+  
+  <button class="btn nav-button" :class="themeClass" @click="toggleTheme">
     {{ buttonText }}
   </button>
-  
 
-  <RouterView v-slot="{ Component }">
-    <transition :name="transitionName" mode="out-in">
-      <!-- key is important to force transitions -->
-      <component :is="Component" :key="$route.fullPath" />
-    </transition>
-  </RouterView>
-
-
+  <main style="position: relative; min-height: 100vh;">
+    <RouterView v-slot="{ Component }">
+      <transition :name="transitionName" mode="out-in">
+        <component :is="Component" :isDarkmode="isDarkmode" />
+      </transition>
+    </RouterView>
 
 
   </main>
@@ -126,80 +123,80 @@ body.dark-mode {
 }
 
 body.light-mode {
-    background-color: #fff;
-    color: black;
-    transition: background-color 0.5s ease, color 0.5s ease;
+  background-color: #fff;
+  color: black;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
-
-.component-old {
-  position: absolute;
-  width: 100%;
-  top: 0;
-  left: 0;
-  z-index: 1;
-}
-
-.component-new {
-  position: absolute;
-  width: 100%;
-  top: 0;
-  left: 0;
-  z-index: 2;
-}
-
 
 /* Fade */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.4s ease;
 }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-.fade-enter-to, .fade-leave-from { opacity: 1; }
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
 
 /* Slide Left */
-.slide-left-enter-active, .slide-left-leave-active {
+.slide-left-enter-active,
+.slide-left-leave-active {
   transition: all 0.4s ease;
   position: absolute;
   width: 100%;
 }
+
 .slide-left-enter-from {
   transform: translateX(100%);
-  opacity: 1;
+  opacity: 0;
 }
+
 .slide-left-enter-to {
   transform: translateX(0);
   opacity: 1;
 }
+
 .slide-left-leave-from {
   transform: translateX(0);
   opacity: 1;
 }
+
 .slide-left-leave-to {
   transform: translateX(-100%);
-  opacity: 1;
+  opacity: 0;
 }
 
 /* Slide Right */
-.slide-right-enter-active, .slide-right-leave-active {
+.slide-right-enter-active,
+.slide-right-leave-active {
   transition: all 0.4s ease;
   position: absolute;
   width: 100%;
 }
+
 .slide-right-enter-from {
   transform: translateX(-100%);
-  opacity: 1;
+  opacity: 0;
 }
+
 .slide-right-enter-to {
   transform: translateX(0);
   opacity: 1;
 }
+
 .slide-right-leave-from {
   transform: translateX(0);
   opacity: 1;
 }
+
 .slide-right-leave-to {
   transform: translateX(100%);
-  opacity: 1;
+  opacity: 0;
 }
-
-
 </style>
