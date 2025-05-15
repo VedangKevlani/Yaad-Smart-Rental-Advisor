@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { auth } from '@/assets/js/firebase.js'; 
+import { auth } from '@/assets/js/firebase.js';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'vue-router';
 import { currentUser } from '@/assets/js/auth.js';
@@ -80,33 +80,34 @@ const login = async () => {
 </script>
 
 <template>
-  <div class="d-flex justify-content-center align-items-center vh-100">
-    <div class="card p-4 shadow-lg login-container">
-      <img class="home-icon" src="../img/yaadlogo.jpg" alt="Yaad logo">
-      <h2>Login to Yaad.</h2>
+  <div class="login-root">
+    <div class="d-flex justify-content-center align-items-center vh-100">
+      <div class="card p-4 shadow-lg login-container">
+        <img class="home-icon" src="../img/yaadlogo.jpg" alt="Yaad logo">
+        <h2>Login to Yaad.</h2>
 
-      <form @submit.prevent="login">
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" placeholder="Enter your email" v-model="email" required />
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Enter your password" v-model="password" required />
-        </div>
-        <div class="form-group">
-          <button type="submit" class="submit-button" href="index.html">Sign In <span
-              class="chevron-icon">➔</span></button>
-        </div>
-      </form>
-      <p class="footer-text">
-        Don't have an account?
-        <router-link to="/signup">Sign up</router-link>
-      </p>
+        <form @submit.prevent="login">
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="Enter your email" v-model="email" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password" v-model="password" required />
+          </div>
+          <div class="form-group">
+            <button type="submit" class="submit-button" href="index.html">Sign In <span
+                class="chevron-icon">➔</span></button>
+          </div>
+        </form>
+        <p class="footer-text">
+          Don't have an account?
+          <router-link to="/signup">Sign up</router-link>
+        </p>
+      </div>
+    </div>
+    <div id="toast" class="toast">
+      <div class="toast-content"></div>
     </div>
   </div>
-  <div id="toast" class="toast">
-    <div class="toast-content"></div>
-  </div>
 </template>
-

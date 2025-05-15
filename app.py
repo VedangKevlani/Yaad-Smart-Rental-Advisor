@@ -6,6 +6,7 @@ from flask_cors import CORS
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 import logging
+import os
 
 app = Flask(__name__)
 CORS(app) 
@@ -19,9 +20,6 @@ def predict():
     if 'image' not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
     file = request.files['image']
-    app.logger.info(f"Received file: {file.filename}")
-    print("Received files:", request.files)
-    print(request.files)
 
     try:
         img = PilImage.open(file.stream).convert("RGB")
@@ -50,7 +48,7 @@ def predict():
 def evaluate():
     try:
         data = request.get_json()
-        file_path = r"C:\Users\mkesh\OneDrive\Documents\UWI\Year 3\Semester 2\COMP3901\Yaad-Smart-Rental-Advisor\src\price_eval\property_rentals.csv"
+        file_path = os.path.join(os.getcwd(),r"src\price_eval\property_rentals.csv")
         df = pd.read_csv(file_path)
 
         target = 'Price'

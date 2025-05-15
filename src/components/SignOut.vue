@@ -17,3 +17,5 @@ onMounted(async () => {
   }
 });
 </script>
+
+<template></template>

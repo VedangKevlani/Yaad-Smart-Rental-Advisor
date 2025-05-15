@@ -117,7 +117,7 @@ onMounted(() => {
   let currentMarker;
 
   if (storedData) {
-    const { address } = JSON.parse(storedData);    
+    const { address } = JSON.parse(storedData);
 
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
       .then(res => res.json())
@@ -284,154 +284,155 @@ onMounted(() => {
 
 
 <template>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <div class="dashboard-root">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
 
-  <div id="toast" class="toast">
-    <div class="toast-content"></div>
-  </div>
+    <div id="toast" class="toast">
+      <div class="toast-content"></div>
+    </div>
 
-  <div class="map-info">
-    <h3>Explore the Map to View Nearby Amenities</h3>
-    <p>Use the map below to discover nearby amenities, including restaurants, shops, and other services in your area.
-    </p>
-  </div>
+    <div class="map-info">
+      <h3>Explore the Map to View Nearby Amenities</h3>
+      <p>Use the map below to discover nearby amenities, including restaurants, shops, and other services in your area.
+      </p>
+    </div>
 
-  <div class="main-content">
-    <main class="dashboard">
-      <div class="container">
-        <div id="map" style="height: 450px; width: 900px; border-radius: var(--radius); box-shadow: var(--shadow);">
-        </div>
-      </div>
-    </main>
-  </div>
-
-
-  <div id="amenitiesCarousel" class="carousel slide">
-
-    <div class="carousel-inner">
-
-
-      <div class="carousel-item active">
-        <div class="d-flex justify-content-center flex-wrap gap-3">
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-house-door me-2"></i> Restaurants</h5>
-              <div id="restaurants-list" class="list-unstyled mb-0"></div>
-            </div>
-          </div>
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-building me-2"></i> Schools</h5>
-              <div id="school-list" class="list-unstyled mb-0"></div>
-            </div>
-          </div>
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-buildings"></i> Places of Worship</h5>
-              <div id="place-of-worship-list" class="list-unstyled mb-0"></div>
-            </div>
+    <div class="main-content">
+      <main class="dashboard">
+        <div class="container">
+          <div id="map" style="height: 450px; width: 900px; border-radius: var(--radius); box-shadow: var(--shadow);">
           </div>
         </div>
-      </div>
+      </main>
+    </div>
 
-      <div class="carousel-item">
-        <div class="d-flex justify-content-center flex-wrap gap-3">
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-hospital me-2"></i> Hospitals</h5>
-              <div id="hospital-list" class="list-unstyled mb-0"></div>
+
+    <div id="amenitiesCarousel" class="carousel slide">
+
+      <div class="carousel-inner">
+
+
+        <div class="carousel-item active">
+          <div class="d-flex justify-content-center flex-wrap gap-3">
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-house-door me-2"></i> Restaurants</h5>
+                <div id="restaurants-list" class="list-unstyled mb-0"></div>
+              </div>
             </div>
-          </div>
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-cup-straw me-2"></i> Fast Food</h5>
-              <div id="fast-food-list" class="list-unstyled mb-0"></div>
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-building me-2"></i> Schools</h5>
+                <div id="school-list" class="list-unstyled mb-0"></div>
+              </div>
             </div>
-          </div>
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-bank me-2"></i> Banks</h5>
-              <div id="bank-list" class="list-unstyled mb-0"></div>
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-buildings"></i> Places of Worship</h5>
+                <div id="place-of-worship-list" class="list-unstyled mb-0"></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="carousel-item">
-        <div class="d-flex justify-content-center flex-wrap gap-3">
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-capsule-pill"></i> Pharmacies</h5>
-              <div id="pharmacy-list" class="list-unstyled mb-0"></div>
+        <div class="carousel-item">
+          <div class="d-flex justify-content-center flex-wrap gap-3">
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-hospital me-2"></i> Hospitals</h5>
+                <div id="hospital-list" class="list-unstyled mb-0"></div>
+              </div>
             </div>
-          </div>
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-shield-lock me-2"></i> Police Stations</h5>
-              <div id="police-list" class="list-unstyled mb-0"></div>
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-cup-straw me-2"></i> Fast Food</h5>
+                <div id="fast-food-list" class="list-unstyled mb-0"></div>
+              </div>
             </div>
-          </div>
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-person-circle me-2"></i> Doctors</h5>
-              <div id="doctors-list" class="list-unstyled mb-0"></div>
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bank me-2"></i> Banks</h5>
+                <div id="bank-list" class="list-unstyled mb-0"></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="carousel-item">
-        <div class="d-flex justify-content-center flex-wrap gap-3">
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-shop me-2"></i> Supermarkets</h5>
-              <div id="supermarket-list" class="list-unstyled mb-0"></div>
+        <div class="carousel-item">
+          <div class="d-flex justify-content-center flex-wrap gap-3">
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-capsule-pill"></i> Pharmacies</h5>
+                <div id="pharmacy-list" class="list-unstyled mb-0"></div>
+              </div>
             </div>
-          </div>
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-activity me-2"></i> Fitness Centres</h5>
-              <div id="fitness-centre-list" class="list-unstyled mb-0"></div>
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-shield-lock me-2"></i> Police Stations</h5>
+                <div id="police-list" class="list-unstyled mb-0"></div>
+              </div>
+            </div>
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-person-circle me-2"></i> Doctors</h5>
+                <div id="doctors-list" class="list-unstyled mb-0"></div>
+              </div>
             </div>
           </div>
         </div>
+
+        <div class="carousel-item">
+          <div class="d-flex justify-content-center flex-wrap gap-3">
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-shop me-2"></i> Supermarkets</h5>
+                <div id="supermarket-list" class="list-unstyled mb-0"></div>
+              </div>
+            </div>
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-activity me-2"></i> Fitness Centres</h5>
+                <div id="fitness-centre-list" class="list-unstyled mb-0"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
+
+      <button class="custom-carousel-btn carousel-control-prev" type="button" data-bs-target="#amenitiesCarousel"
+        data-bs-slide="prev">
+        <span class="custom-arrow">&#10094;</span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+
+      <button class="custom-carousel-btn carousel-control-next" type="button" data-bs-target="#amenitiesCarousel"
+        data-bs-slide="next">
+        <span class="custom-arrow">&#10095;</span>
+        <span class="visually-hidden">Next</span>
+      </button>
 
     </div>
 
-    <button class="custom-carousel-btn carousel-control-prev" type="button" data-bs-target="#amenitiesCarousel"
-      data-bs-slide="prev">
-      <span class="custom-arrow">&#10094;</span>
-      <span class="visually-hidden">Previous</span>
-    </button>
-
-    <button class="custom-carousel-btn carousel-control-next" type="button" data-bs-target="#amenitiesCarousel"
-      data-bs-slide="next">
-      <span class="custom-arrow">&#10095;</span>
-      <span class="visually-hidden">Next</span>
-    </button>
-
-  </div>
-
-  <div class="floating-icon" @click="showEvaluator = true">
-    <i class="bi bi-cash-coin"></i>
-  </div>
-
-  <PriceEvaluator v-if="showEvaluator" @close="showEvaluator = false" />
-
-
-  <transition name="fade">
-    <div v-if="showPopup" class="popup-overlay" @click.self="showPopup = false">
-      <div class="popup-content">
-        <h5 class="mb-3">Price Evaluator</h5>
-        <p>Enter price details here...</p>
-        <button class="btn btn-secondary btn-sm mt-2" @click="showPopup = false">Close</button>
-      </div>
+    <div class="floating-icon" @click="showEvaluator = true">
+      <i class="bi bi-cash-coin"></i>
     </div>
-  </transition>
 
+    <PriceEvaluator v-if="showEvaluator" @close="showEvaluator = false" />
+
+
+    <transition name="fade">
+      <div v-if="showPopup" class="popup-overlay" @click.self="showPopup = false">
+        <div class="popup-content">
+          <h5 class="mb-3">Price Evaluator</h5>
+          <p>Enter price details here...</p>
+          <button class="btn btn-secondary btn-sm mt-2" @click="showPopup = false">Close</button>
+        </div>
+      </div>
+    </transition>
+  </div>
 </template>
 
 <style scoped>

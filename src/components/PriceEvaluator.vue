@@ -60,7 +60,7 @@ const formattedRentCost = computed(() => {
 
 const updateRentCost = (val) => {
   rentCostInput.value = val.replace(/[^\d.]/g, '');
-  form.value.EstimatedRent  = parseFloat(rentCostInput.value);
+  form.value.EstimatedRent = parseFloat(rentCostInput.value);
 }
 
 const formatLabel = (label) => label.replace(/_/g, ' ').replace(/-/g, '–')
@@ -147,67 +147,71 @@ const evaluate = async () => {
 </script>
 
 <template>
-  <div class="popup-overlay" @click.self="$emit('close')">
-    <div class="popup-content">
-      <header class="popup-header">
-        <h2 class="popup-title">💲 Price Evaluator</h2>
-        <button @click="$emit('close')" class="popup-close-btn" aria-label="Close">&times;</button>
-      </header>
+  <div class="price-evaluator">
+    <div class="popup-overlay" @click.self="$emit('close')">
+      <div class="popup-content">
+        <header class="popup-header">
+          <h2 class="popup-title">💲 Price Evaluator</h2>
+          <button @click="$emit('close')" class="popup-close-btn" aria-label="Close">&times;</button>
+        </header>
 
-      <p class="popup-description">
-        Fill in the form to evaluate the rental price of your property by comparing expected rent to predicted rent.
-      </p>
-      <p class="location-info">(For Kingston & St. Andrew Apartments Only)</p>
+        <p class="popup-description">
+          Fill in the form to evaluate the rental price of your property by comparing expected rent to predicted rent.
+        </p>
+        <p class="location-info">(For Kingston & St. Andrew Apartments Only)</p>
 
-      <div class="popup-form">
-        <div class="form-group">
-          <label for="squareFootage">Square Footage</label>
-          <input type="text" :value="formattedSquareFeet" @input="updateSquareFeet($event.target.value)" id="squareFootage" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label for="bedrooms">Bedrooms</label>
-          <input v-model="form.Bedrooms" type="number" id="bedrooms" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label for="bathrooms">Bathrooms</label>
-          <input v-model="form.Bathrooms" type="number" id="bathrooms" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label for="estimatedRent">Monthly Rent</label>
-          <input type="text" :value="formattedRentCost" @input="updateRentCost($event.target.value)" id="estimatedRent" class="form-control" />
-        </div>
+        <div class="popup-form">
+          <div class="form-group">
+            <label for="squareFootage">Square Footage</label>
+            <input type="text" :value="formattedSquareFeet" @input="updateSquareFeet($event.target.value)"
+              id="squareFootage" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="bedrooms">Bedrooms</label>
+            <input v-model="form.Bedrooms" type="number" id="bedrooms" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="bathrooms">Bathrooms</label>
+            <input v-model="form.Bathrooms" type="number" id="bathrooms" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="estimatedRent">Monthly Rent</label>
+            <input type="text" :value="formattedRentCost" @input="updateRentCost($event.target.value)"
+              id="estimatedRent" class="form-control" />
+          </div>
 
-        <div class="form-group form-grid">
-          <label v-for="feature in binaryFeatures" :key="feature" class="form-checkbox-label">
-            <input v-model="form[feature]" type="checkbox" :true-value="1" :false-value="0" :id="feature"
-              class="form-checkbox-input" />
-            <span>{{ formatLabel(feature) }}</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="popup-footer">
-
-        <button @click="evaluate" class="submit-button">Evaluate</button>
-
-
-        <div v-if="result" class="popup-result">
-          <p class="result-predicted-value">
-            Predicted Monthly Rent: ${{ result.predicted_value.toLocaleString() }}
-          </p>
-          <p class="result-verdict">
-            {{ verdictText }}
-          </p>
+          <div class="form-group form-grid">
+            <label v-for="feature in binaryFeatures" :key="feature" class="form-checkbox-label">
+              <input v-model="form[feature]" type="checkbox" :true-value="1" :false-value="0" :id="feature"
+                class="form-checkbox-input" />
+              <span>{{ formatLabel(feature) }}</span>
+            </label>
+          </div>
         </div>
 
-        <div v-show="isLoading" ref="spinner" class="spinner-container">
-          <div id="spinner" class="spinner"></div>
+        <div class="popup-footer">
+
+          <button @click="evaluate" class="submit-button">Evaluate</button>
+
+
+          <div v-if="result" class="popup-result">
+            <p class="result-predicted-value">
+              Predicted Monthly Rent: ${{ result.predicted_value.toLocaleString() }}
+            </p>
+            <p class="result-verdict">
+              {{ verdictText }}
+            </p>
+          </div>
+
+          <div v-show="isLoading" ref="spinner" class="spinner-container">
+            <div id="spinner" class="spinner"></div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div id="toast" class="toast">
-    <div class="toast-content"></div>
+    <div id="toast" class="toast">
+      <div class="toast-content"></div>
+    </div>
   </div>
 </template>
 

@@ -6,7 +6,7 @@ import Login from 'src/components/Login.vue'
 import SignOut from 'src/components/SignOut.vue'
 import Dashboard from 'src/components/Dashboard.vue'
 import InvestmentTools from 'src/components/InvestmentTools.vue'
-import MyProfile from '../components/MyProfile.vue'
+import MyProfile from 'src/components/MyProfile.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,42 +14,50 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomePage
+      component: HomePage,
+      meta: { transition: 'custom' }
     },
     {
       path: '/index',
       name: 'index',
-      component: IndexPage
+      component: IndexPage,
+      meta: { transition: 'custom' }
     },
     {
       path: '/signup',
       name: 'signup',
-      component: SignUp
+      component: SignUp,
+      meta: { transition: 'custom' }
     },
     {
       path: '/login',
       name: 'login',
-      component: Login
+      component: Login,
+      meta: { transition: 'custom' }
     },
     {
       path: '/signout',
       name: 'signout',
-      component: SignOut
+      component: SignOut,
+      meta: { transition: 'custom' }
     },
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: Dashboard
+      component: Dashboard,
+      meta: { transition: 'custom' }
     },
     {
       path: '/investment-tools',
       name: 'investmenttools',
-      component: InvestmentTools
+      component: InvestmentTools,
+      meta: { transition: 'custom' }
     },
     {
       path: '/my-profile',
       name: 'myprofile',
-      component: MyProfile
+      component: MyProfile,
+      meta: { transition: 'custom' }
     }
   ],
   scrollBehavior(to, from, savedPosition) {
