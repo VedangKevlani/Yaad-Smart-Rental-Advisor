@@ -333,15 +333,7 @@ input:hover:not(:focus) {
   background-color: #e2e8f0;
 }
 
-.landing-content {
-  padding: 4rem 1rem;
-  width: 100%;
-  margin-top: 10px;
-  padding: 4rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+
 
 /* Dark Mode */
 /* Dark mode styles */
@@ -737,18 +729,9 @@ position: relative;
   }
 }
 
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-}
-
 .nav-logo {
   font-size: 24px;
 }
-
-
 
 
 .nav-button.signup {

@@ -197,28 +197,72 @@ watch(showCashFlow, (newVal) => {
 
       <h5>This section provides a number of calculators, each with specific functionality as it relates to rental
         property. Here is a breakdown of what each calculator does: </h5>
-      <ul>
-        <li>
+      <div class="container mt-4">
+ <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <p class="card-text">
           The loan calculator computes the monthly mortgage payment based on the loan amount, interest rate, and
           loan term, helping property buyers estimate their monthly financial commitment.
-        </li>
-        <li>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <p class="card-text">
           The investment return calculator estimates the future value of an investment based on compound interest,
           helping property investors understand how their invested capital may grow over time.
-        </li>
-        <li>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <p class="card-text">
           The rent vs buy calculator helps potential homebuyers compare the long-term financial costs of renting
           versus buying a property over a specified ownership period.
-        </li>
-        <li>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2 with one placeholder in column 2 -->
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <p class="card-text">
           The rental yield calculator computes the rental yield, a key metric that shows the return on investment
           from rental income relative to the property's cost.
-        </li>
-        <li>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Placeholder to push next card to column 3 -->
+  <div class="col d-none d-lg-block">
+    <div class="card h-100 border-0 bg-transparent"></div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <p class="card-text">
           The cash flow calculator helps property owners determine their monthly cash flow by comparing rental
           income against monthly expenses.
-        </li>
-      </ul>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
     </div>
 
     <div class="container tool-box-container">
@@ -422,5 +466,21 @@ h2 {
   margin-bottom: 4px;
   font-weight: 500;
   color: white;
+}
+
+.card {
+  background-color: var(--primary);
+  border: none;
+  border-radius: 20px;
+}
+
+.dark-mode .card {
+  background-color: var(--primary-dark);
+}
+
+
+.card-text {
+  color: white;
+  font-weight: 500;
 }
 </style>

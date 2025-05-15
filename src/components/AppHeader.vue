@@ -1,7 +1,7 @@
 <template>
   <header>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <nav class="navbar navbar-expand-lg fixed-top shadow bg-white" :class="isDarkmode ? 'navbar-dark dark-theme' : 'navbar'">
+    <nav class="navbar navbar-expand-lg fixed-top shadow" :class="isDarkmode ? 'navbar-dark dark-theme' : 'navbar'">
       <div class="container-fluid d-flex justify-content-between align-items-center">
         <a class="navbar-brand d-flex align-items-center gap-2" href="/">
   <img src="src\assets\img\trans_logo.png" alt="App Logo" style="height: 30px; width: auto;" />
@@ -62,8 +62,11 @@ const props = defineProps({
 </script>
 
 <style>
-
 .navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
   background-color: #48b5d0 !important;
 }
 

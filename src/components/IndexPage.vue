@@ -379,6 +379,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
+
 .highlight-text {
   color: #40a7c3;
 }
