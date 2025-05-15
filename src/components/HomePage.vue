@@ -21,7 +21,7 @@
         <div class="feature-box slide-up">
           <div class="feature-icon">🏙️</div>
           <h3>Enter Property Details</h3>
-          <p>ill in the address and basic property information to get started.</p>
+          <p>Fill in the address and basic property information to get started.</p>
         </div>
         <div class="feature-box slide-up">
           <div class="feature-icon">📊</div>
