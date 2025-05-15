@@ -214,7 +214,7 @@ onMounted(() => {
                   <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
                   <circle cx="12" cy="10" r="3"></circle>
                 </svg>
-                <span>Address*</span>
+                <span>Address</span>
               </div>
             </label>
             <input type="text" id="address" placeholder="Enter property address" class="input-field" />
@@ -232,7 +232,7 @@ onMounted(() => {
                     <path d="M4 8h.01"></path>
                     <path d="M7 8h.01"></path>
                   </svg>
-                  <span>Bedrooms*</span>
+                  <span>Bedrooms</span>
                 </div>
               </label>
               <input type="number" id="bedrooms" placeholder="e.g., 2" min="0" step="1" class="input-field" />
@@ -250,7 +250,7 @@ onMounted(() => {
                     <line x1="22" y1="2" x2="13" y2="11"></line>
                     <path d="M13 2v6h6"></path>
                   </svg>
-                  <span>Bathrooms*</span>
+                  <span>Bathrooms</span>
                 </div>
               </label>
               <input type="number" id="bathrooms" placeholder="e.g., 2" min="0" step="1"  class="input-field" />
@@ -279,7 +279,7 @@ onMounted(() => {
                   <path d="M12 1v22"></path>
                   <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
-                <span>Monthly Rent (JMD)*</span>
+                <span>Monthly Rent (JMD)</span>
               </div>
             </label>
             <input type="text" id="rentCost" :value="formattedRentCost" @input="updateRentCost($event.target.value)"
@@ -295,7 +295,7 @@ onMounted(() => {
                   <circle cx="8.5" cy="8.5" r="1.5"></circle>
                   <path d="M21 15l-5-5L5 21"></path>
                 </svg>
-                <span id="upload-image">Click below to Upload Image from your computer</span>
+                <span id="upload-image">Upload Image</span>
               </div>
             </label>
             <input type="file" id="propertyImage" accept="image/*" class="input-field" />

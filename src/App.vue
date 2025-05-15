@@ -15,6 +15,8 @@ router.afterEach((to, from) => {
     transitionName.value = 'fade';
   } else if (from.name === 'signup' && to.name === 'login') {
     transitionName.value = 'slide-right';
+  } else if (from.name === 'home' && to.name === 'signup') {
+    transitionName.value = 'slide-left';
   } else if (from.name === 'home' && to.name === 'login') {
     transitionName.value = 'slide-left';
   } else if (from.name === 'index' && to.name === 'investment-tools') {

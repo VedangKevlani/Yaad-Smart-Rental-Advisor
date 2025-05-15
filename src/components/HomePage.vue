@@ -1,3 +1,13 @@
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+function routeToSignup() {
+  router.push('/signup');
+}
+</script>
+
 <template>
   <div class="home-page-root">
     <section class="landing-content fade-in">
@@ -38,9 +48,7 @@
       <div class="cta-section slide-up" id="signup">
         <h2>Ready to Find Your Dream Rental?</h2>
         <p>Sign up and start analyzing listings with the power of AI.</p>
-        <RouterLink to="/signup">
-          <button class="cta-button">Create an Account</button>
-        </RouterLink>
+          <button class="cta-button" @click="routeToSignup">Create an Account</button>
       </div>
     </section>
   </div>

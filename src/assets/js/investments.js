@@ -6,9 +6,16 @@ export const rentVsBuyResult = ref("");
 export const rentalYieldResult = ref("");
 export const cashFlowResult = ref("");
 
-
-export function useFinancialTools({loanAmount, investmentAmount, monthlyRent, homePrice, annualRentalIncome, propertyCost, rentalIncome, monthlyExpenses}) {
-  
+export function useFinancialTools({
+  loanAmount,
+  investmentAmount,
+  monthlyRent,
+  homePrice,
+  annualRentalIncome,
+  propertyCost,
+  rentalIncome,
+  monthlyExpenses,
+}) {
   const interestRate = ref("");
   const loanTerm = ref("");
 
@@ -107,8 +114,12 @@ export function useFinancialTools({loanAmount, investmentAmount, monthlyRent, ho
     if (!isNaN(income) && !isNaN(expenses)) {
       const flow = income - expenses;
       const status = flow >= 0 ? "Profit" : "Loss";
-      cashFlowResult.value = `Monthly Cash Flow: $${flow.toFixed(
-        2
+      cashFlowResult.value = `Monthly Cash Flow: $${flow.toLocaleString(
+        undefined,
+        {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }
       )} (${status})`;
     } else {
       cashFlowResult.value = "Please enter valid values";

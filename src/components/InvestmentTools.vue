@@ -236,10 +236,23 @@ watch(showCashFlow, (newVal) => {
         <!-- Loan Calculator -->
         <div class="tool-box" v-show="showLoan">
           <h3>Loan Calculator</h3>
-          <input type="text" class="tool-input" :value="formattedLoanAmount"
-            @input="updateLoanAmount($event.target.value)" placeholder="Enter Loan Amount ($)" />
-          <input type="number" class="tool-input" v-model="interestRate" placeholder="Enter Interest Rate (%)" />
-          <input type="number" class="tool-input" v-model="loanTerm" placeholder="Enter Loan Term (Years)" />
+
+          <div class="tool-row">
+            <label class="tool-label">Loan Amount</label>
+            <input type="text" class="tool-input" :value="formattedLoanAmount"
+              @input="updateLoanAmount($event.target.value)" placeholder="Enter Loan Amount ($)" />
+          </div>
+
+          <div class="tool-row">
+            <label class="tool-label">Interest Rate</label>
+            <input type="number" class="tool-input" v-model="interestRate" placeholder="Enter Interest Rate (%)" />
+          </div>
+
+          <div class="tool-row">
+            <label class="tool-label">Loan Term (Years)</label>
+            <input type="number" class="tool-input" v-model="loanTerm" placeholder="Enter Loan Term (Years)" />
+          </div>
+
           <button class="tool-button" @click="calculateLoan">Calculate Loan</button>
           <div class="result">{{ loanResult }}</div>
         </div>
@@ -247,10 +260,24 @@ watch(showCashFlow, (newVal) => {
         <!-- Investment Return Calculator -->
         <div class="tool-box" v-show="showInvestment">
           <h3>Investment Return Calculator</h3>
-          <input type="text" class="tool-input" :value="formattedInvestmentAmount"
-            @input="updateInvestmentAmount($event.target.value)" placeholder="Enter Investment Amount($)" />
-          <input type="number" class="tool-input" v-model="annualReturn" placeholder="Enter Annual Return (%)" />
-          <input type="number" class="tool-input" v-model="years" placeholder="Enter Number of Years" />
+
+          <div class="tool-row">
+            <label class="tool-label">Investment Amount</label>
+            <input type="text" class="tool-input" :value="formattedInvestmentAmount"
+              @input="updateInvestmentAmount($event.target.value)" placeholder="Enter Investment Amount($)" />
+          </div>
+
+          <div class="tool-row">
+            <label class="tool-label">Annual Return</label>
+            <input type="number" class="tool-input" v-model="annualReturn" placeholder="Enter Annual Return (%)" />
+          </div>
+
+          <div class="tool-row">
+            <label class="tool-label">Number of Years</label>
+            <input type="number" class="tool-input" v-model="years" placeholder="Enter Number of Years" />
+          </div>
+
+
           <button class="tool-button" @click="calculateInvestmentReturn">Calculate Return</button>
           <div class="result">{{ investmentResult }}</div>
         </div>
@@ -258,12 +285,29 @@ watch(showCashFlow, (newVal) => {
         <!-- Rent vs Buy Calculator -->
         <div class="tool-box" v-show="showRentVsBuy">
           <h3>Rent vs Buy Calculator</h3>
-          <input type="text" class="tool-input" :value="formattedMonthlyRent"
-            @input="updateMonthlyRent($event.target.value)" placeholder="Monthly Rent ($)" />
-          <input type="text" class="tool-input" :value="formattedHomePrice"
-            @input="updateHomePrice($event.target.value)" placeholder="Home Price ($)" />
-          <input type="number" class="tool-input" v-model="mortgageRate" placeholder="Mortgage Interest Rate (%)">
-          <input type="number" class="tool-input" v-model="ownershipYears" placeholder="Years You Plan to Stay">
+
+          <div class="tool-row">
+            <label class="tool-label">Monthly Rent</label>
+            <input type="text" class="tool-input" :value="formattedMonthlyRent"
+              @input="updateMonthlyRent($event.target.value)" placeholder="Monthly Rent ($)" />
+          </div>
+
+          <div class="tool-row">
+            <label class="tool-label">Home Price</label>
+            <input type="text" class="tool-input" :value="formattedHomePrice"
+              @input="updateHomePrice($event.target.value)" placeholder="Home Price ($)" />
+          </div>
+
+          <div class="tool-row">
+            <label class="tool-label">Interest Rate</label>
+            <input type="number" class="tool-input" v-model="mortgageRate" placeholder="Mortgage Interest Rate (%)">
+          </div>
+
+          <div class="tool-row">
+            <label class="tool-label">Years of Residency</label>
+            <input type="number" class="tool-input" v-model="ownershipYears" placeholder="Years of Residency">
+          </div>
+
           <button class="tool-button" @click="calculateRentVsBuy">Compare</button>
           <div class="result">{{ rentVsBuyResult }}</div>
         </div>
@@ -271,10 +315,20 @@ watch(showCashFlow, (newVal) => {
         <!-- Rental Yield Calculator -->
         <div class="tool-box" v-show="showRentalYield">
           <h3>Rental Yield Calculator</h3>
-          <input type="text" class="tool-input" :value="formattedAnnualRentalIncome"
-            @input="updateAnnualRentalIncome($event.target.value)" placeholder="Annual Rental Income ($)" />
-          <input type="text" class="tool-input" :value="formattedPropertyCost"
-            @input="updatePropertyCost($event.target.value)" placeholder="Property Purchase Price ($)" />
+
+          <div class="tool-row">
+            <label class="tool-label">Annual Rental Income</label>
+            <input type="text" class="tool-input" :value="formattedAnnualRentalIncome"
+              @input="updateAnnualRentalIncome($event.target.value)" placeholder="Annual Rental Income ($)" />
+          </div>
+
+          <div class="tool-row">
+            <label class="tool-label">Property Cost</label>
+            <input type="text" class="tool-input" :value="formattedPropertyCost"
+              @input="updatePropertyCost($event.target.value)" placeholder="Property Cost ($)" />
+          </div>
+
+
           <button class="tool-button" @click="calculateRentalYield">Calculate Yield</button>
           <div class="result">{{ rentalYieldResult }}</div>
         </div>
@@ -282,10 +336,20 @@ watch(showCashFlow, (newVal) => {
         <!-- Cash Flow Calculator -->
         <div class="tool-box" v-show="showCashFlow">
           <h3>Cash Flow Calculator</h3>
-          <input type="text" class="tool-input" :value="formattedRentalIncome"
-            @input="updateRentalIncome($event.target.value)" placeholder="Monthly Rental Income ($)" />
-          <input type="text" class="tool-input" :value="formattedMonthlyExpenses"
-            @input="updateMonthlyExpenses($event.target.value)" placeholder="Total Monthly Expenses ($)" />
+
+          <div class="tool-row">
+            <label class="tool-label">Total Monthly Rental Income</label>
+            <input type="text" class="tool-input" :value="formattedRentalIncome"
+              @input="updateRentalIncome($event.target.value)" placeholder="Total Monthly Rental Income ($)" />
+          </div>
+
+          <div class="tool-row">
+            <label class="tool-label">Total Montly Expenses</label>
+            <input type="text" class="tool-input" :value="formattedMonthlyExpenses"
+              @input="updateMonthlyExpenses($event.target.value)" placeholder="Total Monthly Expenses ($)" />
+          </div>
+
+
           <button class="tool-button" @click="calculateCashFlow">Calculate Cash Flow</button>
           <div class="result">{{ cashFlowResult }}</div>
         </div>
@@ -343,5 +407,20 @@ h2 {
   justify-content: center;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
+}
+
+.tool-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.tool-label {
+  display: block;
+  align-self: flex-start;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: white;
 }
 </style>
