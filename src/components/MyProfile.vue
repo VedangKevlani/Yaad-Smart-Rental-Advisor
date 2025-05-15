@@ -38,12 +38,12 @@ onMounted(() => {
     <div class="price-evaluator-queries">
       <details class="query" v-for="(query, index) in queries" :key="query.id || index">
         <summary>
-          Query {{ index + 1 }} - {{ query.square_footage }} sq ft, ${{ query.predicted_value }}
+          Query {{ index + 1 }} - {{ query.square_footage.toLocaleString() }} sq ft, ${{ query.predicted_value.toLocaleString() }}
         </summary>
 
         <div class="option">
           <label for="square_footage">Square Footage:</label>
-          <p>{{ query.square_footage }} sq ft</p>
+          <p>{{ query.square_footage.toLocaleString() }} sq ft</p>
         </div>
 
         <div class="option">
@@ -58,12 +58,12 @@ onMounted(() => {
 
         <div class="option">
           <label for="monthly_rent">Monthly Rent:</label>
-          <p>${{ query.monthly_rent }}.00</p>
+          <p>${{ query.monthly_rent.toLocaleString() }}.00</p>
         </div>
 
         <div class="option">
           <label for="24_hour_security">24 Hour Security?</label>
-          <p>{{ query.security }}</p>
+          <p>{{ query.security_24hr }}</p>
         </div>
 
         <div class="option">
@@ -103,7 +103,7 @@ onMounted(() => {
 
         <div class="option">
           <label for="predicted_value">Predicted Value:</label>
-          <p>${{ query.predicted_value }}</p>
+          <p>${{ query.predicted_value.toLocaleString() }}</p>
         </div>
       </details>
     </div>
