@@ -12,6 +12,9 @@ const userID = localStorage.getItem('userID');
 const result = ref(null);
 const isLoading = ref(false);
 
+const squareFeetInput = ref('');
+const rentCostInput = ref('');
+
 const form = ref({
   'Square Footage': '',
   Bedrooms: '',
@@ -37,6 +40,28 @@ const binaryFeatures = [
   'View_-_Ocean',
   'Waterfront_-_Ocean',
 ]
+
+const formattedSquareFeet = computed(() => {
+  const num = parseFloat(squareFeetInput.value.replace(/,/g, ''));
+  if (isNaN(num)) return '';
+  return `${num.toLocaleString()}`;
+})
+
+const updateSquareFeet = (val) => {
+  squareFeetInput.value = val.replace(/[^\d.]/g, '');
+  form.value['Square Footage'] = parseInt(squareFeetInput.value);
+}
+
+const formattedRentCost = computed(() => {
+  const num = parseFloat(rentCostInput.value.replace(/,/g, ''));
+  if (isNaN(num)) return '';
+  return `$${num.toLocaleString()}`;
+})
+
+const updateRentCost = (val) => {
+  rentCostInput.value = val.replace(/[^\d.]/g, '');
+  form.value.EstimatedRent  = parseFloat(rentCostInput.value);
+}
 
 const formatLabel = (label) => label.replace(/_/g, ' ').replace(/-/g, '–')
 
@@ -137,7 +162,7 @@ const evaluate = async () => {
       <div class="popup-form">
         <div class="form-group">
           <label for="squareFootage">Square Footage</label>
-          <input v-model="form['Square Footage']" type="number" id="squareFootage" class="form-control" />
+          <input type="text" :value="formattedSquareFeet" @input="updateSquareFeet($event.target.value)" id="squareFootage" class="form-control" />
         </div>
         <div class="form-group">
           <label for="bedrooms">Bedrooms</label>
@@ -149,7 +174,7 @@ const evaluate = async () => {
         </div>
         <div class="form-group">
           <label for="estimatedRent">Monthly Rent</label>
-          <input v-model="form['EstimatedRent']" type="number" id="estimatedRent" class="form-control" />
+          <input type="text" :value="formattedRentCost" @input="updateRentCost($event.target.value)" id="estimatedRent" class="form-control" />
         </div>
 
         <div class="form-group form-grid">

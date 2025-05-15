@@ -1,6 +1,6 @@
 <script setup>
 import { currentUser } from '@/assets/js/auth.js';
-import { ref, watch, defineProps, onMounted } from 'vue';
+import { ref, watch, defineProps, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import PriceEvaluator from '@/components/PriceEvaluator.vue';
 
@@ -10,13 +10,34 @@ const router = useRouter();
 const showWelcome = ref(false);
 const displayName = ref("");
 
-const showPrediction = ref(false);
-const predictionMessage = ref("");
-
+const squareFeetInput = ref('');
+const rentCostInput = ref('');
 
 defineProps({
   isDarkmode: Boolean,
 });
+
+const formattedSquareFeet = computed(() => {
+  const num = parseFloat(squareFeetInput.value.replace(/,/g, ''));
+  if (isNaN(num)) return '';
+  return `${num.toLocaleString()}`;
+})
+
+const updateSquareFeet = (val) => {
+  squareFeetInput.value = val.replace(/[^\d.]/g, '');
+  squareFeet.value  = parseInt(squareFeetInput.value);
+}
+
+const formattedRentCost = computed(() => {
+  const num = parseFloat(rentCostInput.value.replace(/,/g, ''));
+  if (isNaN(num)) return '';
+  return `$${num.toLocaleString()}`;
+})
+
+const updateRentCost = (val) => {
+  rentCostInput.value = val.replace(/[^\d.]/g, '');
+  rentCost.value  = parseFloat(rentCostInput.value);
+}
 
 
 
@@ -25,7 +46,12 @@ onMounted(() => {
   const spinner = document.getElementById("spinner");
   const propertyForm = document.getElementById("propertyForm");
 
+  
+
+
+
   localStorage.removeItem("predictionResult");
+  localStorage.removeItem("submittedProperty");
 
   spinner.style.display = "none";
 
@@ -48,12 +74,17 @@ onMounted(() => {
     }, 3000);
   }
 
+  
+
   propertyForm.addEventListener("submit", async function (e) {
     e.preventDefault();
-
-    const address = document.getElementById("address").value;
+const address = document.getElementById("address").value;
+    const bedrooms = document.getElementById("bedrooms").value || "Not specified";
+    const bathrooms = document.getElementById("bathrooms").value || "Not specified";
+    const squareFeet = document.getElementById("squareFeet").value || "Not specified";
+    const rentCost = document.getElementById("rentCost").value || "Not specified";
     const imageFile = propertyImageInput.files[0] || null;
-
+    
     if (!address) {
       showToast("Please enter a property address to analyze.", "error");
       return;
@@ -79,11 +110,24 @@ onMounted(() => {
             label: data.label,
             confidence: data.confidence,
           };
+
+          const formData = {
+            address,
+            bedrooms,
+            bathrooms,
+            squareFeet,
+            rentCost,
+            imageFileName: imageFile ? imageFile.name : "No image uploaded",
+          };
+
+          localStorage.setItem("submittedProperty", JSON.stringify(formData));
           localStorage.setItem("predictionResult", JSON.stringify(prediction));
           
           if (prediction.label === "real") {
             showToast(`Your image is more than likely ${ prediction.label }!`, "info");
-            router.push("/Dashboard");
+            setTimeout(() => {
+              router.push("/Dashboard");
+            },4000);
           } else {
             showToast(`Your image is more than likely ${ prediction.label }!`, "warning");
           }
@@ -131,7 +175,7 @@ onMounted(() => {
           <polyline points="9 22 9 12 15 12 15 22"></polyline>
         </svg>
         <h1 class="title">
-          Yaad: <span class="highlight">Smart Property Advisor</span>
+          Yaad: <span class="highlight-text">Smart Property Advisor</span>
         </h1>
       </div>
 
@@ -210,7 +254,7 @@ onMounted(() => {
                 <span>Square Feet</span>
               </div>
             </label>
-            <input type="number" id="squareFeet" placeholder="e.g., 1200" min="0" class="input-field" />
+            <input type="text" id="squareFeet" :value="formattedSquareFeet" @input="updateSquareFeet($event.target.value)" placeholder="e.g., 1,200" min="0" class="input-field" />
           </div>
         </div>
 
@@ -225,7 +269,7 @@ onMounted(() => {
               <span>Monthly Rent (JMD)*</span>
             </div>
           </label>
-          <input type="number" id="rentCost" placeholder="e.g., 80000" min="0" required class="input-field" />
+          <input type="text" id="rentCost" :value="formattedRentCost" @input="updateRentCost($event.target.value)" placeholder="e.g., $80,000" min="0" required class="input-field" />
         </div>
 
         <div class="form-group">
@@ -319,13 +363,15 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.highlight-text {
+  color: #40a7c3;
+}
+
 .home-icon {
   width: 40px;
   height: 40px;
   border-radius: 20%;
-  /* Makes it a circle */
   box-sizing: content-box;
-  /* Ensures padding doesn't shrink SVG */
 }
 
 .floating-icon {

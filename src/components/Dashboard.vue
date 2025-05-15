@@ -8,12 +8,88 @@ const errorMsg = ref('');
 const showPopup = ref(false);
 
 
-const predictionLabel = ref("");
-const predictionConfidence = ref("");
+const redIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+const colorIcons = {
+  violet: new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  }),
+  yellow: new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  }),
+  grey: new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-grey.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  }),
+  orange: new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  }),
+  black: new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-black.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  }),
+  green: new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  }),
+  blue: new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  }),
+  gold: new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  }),
+}
+
 
 function showToast(message, type) {
   const toast = document.querySelector("#toast");
   const toastContent = toast.querySelector(".toast-content");
+
+  toast.classList.remove("show", type);
 
   if (!toast || !toastContent) {
     console.error("Toast element or content not found.");
@@ -29,16 +105,8 @@ function showToast(message, type) {
 }
 
 onMounted(() => {
-  const stored = localStorage.getItem("predictionResult");
-  if (stored) {
-    const result = JSON.parse(stored);
-    predictionLabel.value = result.label;
-    predictionConfidence.value = result.confidence;
-    showToast(`Prediction: Your image is most likely ${predictionLabel.value}!`, "info");
-  }
-
+  const mapElement = document.getElementById('map');
   const storedData = localStorage.getItem('submittedProperty');
-
 
   let map = L.map('map').setView([18.0155, -76.8766], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -49,7 +117,7 @@ onMounted(() => {
   let currentMarker;
 
   if (storedData) {
-    const { address } = JSON.parse(storedData);
+    const { address } = JSON.parse(storedData);    
 
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
       .then(res => res.json())
@@ -60,7 +128,7 @@ onMounted(() => {
 
           map.setView([lat, lon], 15);
 
-          currentMarker = L.marker([lat, lon])
+          currentMarker = L.marker([lat, lon], { icon: redIcon })
             .addTo(map)
             .bindPopup(`<strong>${address}</strong>`)
             .openPopup();
@@ -80,50 +148,26 @@ onMounted(() => {
     showToast(errorMsg.value, 'error');
   }
 
-  function getColorForAmenity(amenity) {
-    const colors = [
-      'red', 'blue', 'purple', 'green', 'orange', 'darkblue',
-      'pink', 'black', 'brown', 'yellow', 'teal'
-    ];
-    let hash = 0;
-    for (let i = 0; i < amenity.length; i++) {
-      hash += amenity.charCodeAt(i);
-    }
-    return colors[hash % colors.length];
-  }
-
-
-  function createAmenityMarker(amenityType) {
-    const color = getColorForAmenity(amenityType);
-    return L.divIcon({
-      className: 'custom-div-icon',
-      html: `<div style="background-color:${color}; width:14px; height:14px; border-radius:50%; border:2px solid white;"></div>`,
-      iconSize: [14, 14],
-      iconAnchor: [7, 7],
-    });
-  }
-
-
 
   function getAmenities(lat, lon) {
     const amenityTypes = [
-      { key: 'restaurant', listId: 'restaurants-list', label: 'Unnamed Restaurant' },
-      { key: 'school', listId: 'school-list', label: 'Unnamed School' },
-      { key: 'place_of_worship', listId: 'place-of-worship-list', label: 'Unnamed Place of Worship' },
-      { key: 'hospital', listId: 'hospital-list', label: 'Unnamed Hospital' },
-      { key: 'fast_food', listId: 'fast-food-list', label: 'Unnamed Fast Food Place' },
-      { key: 'bank', listId: 'bank-list', label: 'Unnamed Bank' },
-      { key: 'pharmacy', listId: 'pharmacy-list', label: 'Unnamed Pharmacy' },
-      { key: 'police', listId: 'police-list', label: 'Unnamed Police Station' },
-      { key: 'doctors', listId: 'doctors-list', label: "Unnamed Doctor's Office" },
-      { key: 'supermarket', listId: 'supermarket-list', label: 'Unnamed Supermarket', isShop: true },
-      { key: 'fitness_centre', listId: 'fitness-list', label: 'Unnamed Fitness Centre' },
+      { key: 'restaurant', listId: 'restaurants-list', label: 'Unnamed Restaurant', color: 'violet' },
+      { key: 'school', listId: 'school-list', label: 'Unnamed School', color: 'yellow' },
+      { key: 'place_of_worship', listId: 'place-of-worship-list', label: 'Unnamed Place of Worship', color: '' },
+      { key: 'hospital', listId: 'hospital-list', label: 'Unnamed Hospital', color: 'grey' },
+      { key: 'fast_food', listId: 'fast-food-list', label: 'Unnamed Fast Food Place', color: 'orange' },
+      { key: 'bank', listId: 'bank-list', label: 'Unnamed Bank', color: 'black' },
+      { key: 'pharmacy', listId: 'pharmacy-list', label: 'Unnamed Pharmacy', color: 'green' },
+      { key: 'police', listId: 'police-list', label: 'Unnamed Police Station', color: 'blue' },
+      { key: 'doctors', listId: 'doctors-list', label: "Unnamed Doctor's Office", color: '' },
+      { key: 'supermarket', listId: 'supermarket-list', label: 'Unnamed Supermarket', isShop: true, color: 'gold' },
+      { key: 'fitness_centre', listId: 'fitness-centre-list', label: 'Unnamed Fitness Centre', color: '' },
     ];
 
-    amenityTypes.forEach(({ key, listId, label, isShop }) => {
+    amenityTypes.forEach(({ key, listId, label, isShop, color }) => {
       const radius = 1000;
       const query = `
-        [out:json][timeout:25];
+        [out:json][timeout:45];
         (
           node["${isShop ? 'shop' : 'amenity'}"="${key}"](around:${radius},${lat},${lon});
           way["${isShop ? 'shop' : 'amenity'}"="${key}"](around:${radius},${lat},${lon});
@@ -139,36 +183,101 @@ onMounted(() => {
         .then(res => res.json())
         .then(data => {
           const list = document.getElementById(listId);
+          if (!list) {
+            console.error(`Element with id "${listId}" not found in the DOM.`);
+            return;
+          }
           list.innerHTML = '';
 
           data.elements.forEach(element => {
             const name = element.tags?.name || label;
+            const markerColor = element.tags?.colour || color;
+            const icon = colorIcons[markerColor] || colorIcons.grey;
+
             if (name.toLowerCase().startsWith('unnamed')) return;
 
             const latLng = element.type === 'node'
               ? [element.lat, element.lon]
               : [element.center.lat, element.center.lon];
 
-            // Create and add marker
-            const marker = L.marker(latLng, {
-              icon: createAmenityMarker(key)
-            }).addTo(map);
+            const marker = L.marker(latLng, { icon })
+              .addTo(map)
+              .bindPopup(`<strong>${name}</strong>`);
 
-            marker.bindPopup(`<strong>${name}</strong>`);
+            const link = document.createElement('p');
+            link.textContent = name;
+            link.style.cursor = 'pointer';
+            link.className = "link";
 
-            // Add to list
-            const li = document.createElement('li');
-            li.textContent = name;
-            list.appendChild(li);
-            list.appendChild(document.createElement('br'));
+            link.addEventListener('mouseenter', () => {
+              if (document.body.classList.contains('dark-mode')) {
+                link.classList.add("dark-mode");
+              } else {
+                link.classList.remove("dark-mode");
+              }
+            });
+
+            link.addEventListener('mouseleave', () => {
+              if (document.body.classList.contains('dark-mode')) {
+                link.classList.add("dark-mode");
+              } else {
+                link.classList.remove("dark-mode");
+              }
+            });
+
+
+            link.addEventListener('click', (e) => {
+              e.preventDefault();
+              mapElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              map.setView(latLng, 18);
+              setTimeout(() => marker.openPopup(), 200);
+            });
+            list.appendChild(link);
+
+
           });
-
         })
         .catch(err => {
           console.error(`Error fetching ${key}:`, err);
         });
     });
   }
+
+  const legend = L.control({ position: 'bottomright' });
+
+  legend.onAdd = function (map) {
+    const div = L.DomUtil.create('div', 'info legend');
+    const amenities = [
+      { label: 'Bank', color: 'black' },
+      { label: 'Fast Food', color: 'orange' },
+      { label: 'Pharmacy', color: 'green' },
+      { label: 'Police Station', color: 'blue' },
+      { label: 'Restaurant', color: 'violet' },
+      { label: 'School', color: 'yellow' },
+      { label: 'Supermarket', color: 'gold' },
+      { label: 'Other', color: 'grey' }
+    ];
+
+    div.innerHTML += '<h4 style="color: black; font-weight: bold; text-decoration: underline;">Amenities</h4>';
+    amenities.forEach(({ label, color }) => {
+      div.innerHTML += `
+      <div style="display: flex; align-items: center; margin-bottom: 4px; color: black; font-weight:bold;">
+        <span style="
+          background-color: ${color};
+          width: 16px;
+          height: 16px;
+          display: inline-block;
+          margin-right: 8px;
+          border: 1px solid #000;
+        "></span> ${label}
+      </div>`;
+    });
+
+    return div;
+  };
+
+  legend.addTo(map);
+
 });
 </script>
 
@@ -209,19 +318,19 @@ onMounted(() => {
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-house-door me-2"></i> Restaurants</h5>
-              <ul id="restaurants-list" class="list-unstyled mb-0"></ul>
+              <div id="restaurants-list" class="list-unstyled mb-0"></div>
             </div>
           </div>
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-building me-2"></i> Schools</h5>
-              <ul id="school-list" class="list-unstyled mb-0"></ul>
+              <div id="school-list" class="list-unstyled mb-0"></div>
             </div>
           </div>
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-buildings"></i> Places of Worship</h5>
-              <ul id="place-of-worship-list" class="list-unstyled mb-0"></ul>
+              <div id="place-of-worship-list" class="list-unstyled mb-0"></div>
             </div>
           </div>
         </div>
@@ -232,19 +341,19 @@ onMounted(() => {
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-hospital me-2"></i> Hospitals</h5>
-              <ul id="hospital-list" class="list-unstyled mb-0"></ul>
+              <div id="hospital-list" class="list-unstyled mb-0"></div>
             </div>
           </div>
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-cup-straw me-2"></i> Fast Food</h5>
-              <ul id="fast-food-list" class="list-unstyled mb-0"></ul>
+              <div id="fast-food-list" class="list-unstyled mb-0"></div>
             </div>
           </div>
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-bank me-2"></i> Banks</h5>
-              <ul id="bank-list" class="list-unstyled mb-0"></ul>
+              <div id="bank-list" class="list-unstyled mb-0"></div>
             </div>
           </div>
         </div>
@@ -255,19 +364,19 @@ onMounted(() => {
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-capsule-pill"></i> Pharmacies</h5>
-              <ul id="pharmacy-list" class="list-unstyled mb-0"></ul>
+              <div id="pharmacy-list" class="list-unstyled mb-0"></div>
             </div>
           </div>
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-shield-lock me-2"></i> Police Stations</h5>
-              <ul id="police-list" class="list-unstyled mb-0"></ul>
+              <div id="police-list" class="list-unstyled mb-0"></div>
             </div>
           </div>
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-person-circle me-2"></i> Doctors</h5>
-              <ul id="doctors-list" class="list-unstyled mb-0"></ul>
+              <div id="doctors-list" class="list-unstyled mb-0"></div>
             </div>
           </div>
         </div>
@@ -278,13 +387,13 @@ onMounted(() => {
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-shop me-2"></i> Supermarkets</h5>
-              <ul id="supermarket-list" class="list-unstyled mb-0"></ul>
+              <div id="supermarket-list" class="list-unstyled mb-0"></div>
             </div>
           </div>
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h5 class="card-title"><i class="bi bi-activity me-2"></i> Fitness Centres</h5>
-              <ul id="fitness-centre-list" class="list-unstyled mb-0"></ul>
+              <div id="fitness-centre-list" class="list-unstyled mb-0"></div>
             </div>
           </div>
         </div>
@@ -421,8 +530,20 @@ onMounted(() => {
   margin-bottom: 0;
 }
 
-.card-body ul li {
-  margin-bottom: 1rem;
+div[id$="list"] * {
+  color: black;
+}
+
+div[id$="list"] *:hover {
+  color: blue;
+}
+
+.dark-mode div[id$="list"] * {
+  color: white;
+}
+
+.dark-mode div[id$="list"] *:hover {
+  color: gold;
 }
 
 .dark-mode .card-body {

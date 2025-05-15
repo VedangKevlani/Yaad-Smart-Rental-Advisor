@@ -137,8 +137,29 @@ input:hover:not(:focus) {
   transition: background-color var(--transition);
 }
 
+.btn.submit-button {
+  width: 100%;
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  background-color: var(--primary-dark);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition);
+}
+
 .submit-button:hover {
   background-color: var(--primary-dark);
+}
+
+.btn.submit-button:hover {
+  background-color: var(--dark);
 }
 
 .chevron-icon {
@@ -215,9 +236,6 @@ input:hover:not(:focus) {
   color: var(--dark);
 }
 
-.highlight {
-  color: var(--primary);
-}
 
 .subtitle {
   font-size: 1.3rem;
@@ -377,7 +395,9 @@ color: #f1f5f9;
     opacity: 10%;
   }
   
-  body.dark-mode .hero *,
+  body.dark-mode .hero h1,
+  body.dark-mode .hero p,
+  body.dark-mode .hero h2,
   body.dark-mode .hero *::placeholder {
     color: var(--white) !important;
     border-color: var(--white); /* optional if inputs have borders */
@@ -921,26 +941,28 @@ color: #555;
 
 .container.tool-box-container {
 display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
-padding: 2rem;
-gap: 15px;
-height: 100%;
+flex-direction: row;
+align-items: flex-start;
+padding-top: 60px; 
+padding-bottom: 400px;
 max-width: 100%;
+flex-wrap: wrap;
+margin-top: 40px;
 }
+
 
 .tool-box {
   display: flex;
-  flex-direction: column;       /* stack children vertically */
-  justify-content: center;      /* center vertically */
-  align-items: center;          /* center horizontally */
+  flex-direction: column;        
+  justify-content: center; 
+  align-self: center;     
+  align-items: center;         
   background-color: #48b5d0;
   padding: 2rem;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   width: 60%;
-  height: 100%;                 /* make sure it can center vertically */
+  height: 100%;                
 }
 
 
