@@ -74,6 +74,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 400px;
   border-color: white;
   border-radius: 15px;
+  background-color: white;
 }
 
 .dark-mode .login-container {
@@ -280,6 +281,15 @@ input:hover:not(:focus) {
 /* Hero Section */
 
 /* Landing Section */
+.landing-content {
+  padding: 4rem 1rem;
+  width: 100%;
+  margin-top: 10px;
+  padding: 4rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 .hero-image {
   width: 100%;
