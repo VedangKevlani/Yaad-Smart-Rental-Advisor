@@ -44,7 +44,7 @@ const binaryFeatures = [
 const formattedSquareFeet = computed(() => {
   const num = parseFloat(squareFeetInput.value.replace(/,/g, ''));
   if (isNaN(num)) return '';
-  return `${num.toLocaleString()}`;
+  return `${num.toLocaleString()} sq ft`;
 })
 
 const updateSquareFeet = (val) => {
