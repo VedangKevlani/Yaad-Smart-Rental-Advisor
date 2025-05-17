@@ -14,11 +14,16 @@ const year = (new Date).getFullYear();
 
 <style scoped>
 
+.footer {
+  text-align: center;
+  font-family: "Georgia", "Times New Roman", serif;
+}
+
 .container {
-width: 100%;
-display: flex;
-flex-direction: column;
-align-items: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
 }
 
 .container-light-mode {
