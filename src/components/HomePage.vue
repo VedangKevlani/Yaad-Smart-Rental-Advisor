@@ -47,7 +47,7 @@ function routeToSignup() {
 
       <div class="cta-section slide-up" id="signup">
         <h2>Ready to Find Your Dream Rental?</h2>
-        <p>Sign up and start analyzing listings with the power of AI.</p>
+        <p>Sign up and start analyzing listings with the power of AI. (Note: this is not legal advice, only a prototype for educational research)</p>
           <button class="cta-button" @click="routeToSignup">Create an Account</button>
       </div>
     </section>
