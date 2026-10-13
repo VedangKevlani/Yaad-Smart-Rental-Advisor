@@ -117,35 +117,41 @@ onMounted(() => {
         let data;
         try {
           data = JSON.parse(text);
-          const prediction = {
-            label: data.label,
-            confidence: data.confidence,
-          };
-
-          const formData = {
-            address,
-            bedrooms,
-            bathrooms,
-            squareFeet,
-            rentCost,
-            imageFileName: imageFile ? imageFile.name : "No image uploaded",
-          };
-
-          localStorage.setItem("submittedProperty", JSON.stringify(formData));
-          localStorage.setItem("predictionResult", JSON.stringify(prediction));
-
-          if (prediction.label === "real") {
-            showToast(`Your image is more than likely ${prediction.label}!`, "info");
-            setTimeout(() => {
-              router.push("/Dashboard");
-            }, 4000);
-          } else {
-            showToast(`Your image is more than likely ${prediction.label}!`, "warning");
-          }
         } catch (err) {
           showToast("Invalid JSON returned from server", "error");
           console.error("JSON parse error:", err);
           return;
+        }
+
+        if (!response.ok || !data.label) {
+          showToast(`Error analyzing image: ${data.error || response.statusText}`, "error");
+          return;
+        }
+
+        const prediction = {
+          label: String(data.label).toLowerCase(),
+          confidence: data.confidence,
+        };
+
+        const formData = {
+          address,
+          bedrooms,
+          bathrooms,
+          squareFeet,
+          rentCost,
+          imageFileName: imageFile ? imageFile.name : "No image uploaded",
+        };
+
+        localStorage.setItem("submittedProperty", JSON.stringify(formData));
+        localStorage.setItem("predictionResult", JSON.stringify(prediction));
+
+        if (prediction.label === "real") {
+          showToast(`Your image is more than likely ${prediction.label}!`, "info");
+          setTimeout(() => {
+            router.push("/dashboard");
+          }, 4000);
+        } else {
+          showToast(`Your image is more than likely ${prediction.label}!`, "warning");
         }
       } catch (error) {
         showToast(`Error analyzing image: ${error.message}!!`, "error");
