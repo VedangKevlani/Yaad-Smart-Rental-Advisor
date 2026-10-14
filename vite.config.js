@@ -10,6 +10,10 @@ export default defineConfig({
       'src': path.resolve(__dirname, 'src')
     }
   },
+  preview: {
+    // Render serves the built site with `vite preview`; allow its domains
+    allowedHosts: ['.onrender.com']
+  },
   server: {
     proxy: {
       '^/api*': {
