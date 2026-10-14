@@ -107,7 +107,7 @@ onMounted(() => {
       spinner.style.display = "block";
 
       try {
-        const response = await fetch("http://127.0.0.1:5000/check-image", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:5000"}/check-image`, {
           method: "POST",
           body: formData,
         });
@@ -133,7 +133,7 @@ onMounted(() => {
           confidence: data.confidence,
         };
 
-        const formData = {
+        const submittedProperty = {
           address,
           bedrooms,
           bathrooms,
@@ -142,7 +142,7 @@ onMounted(() => {
           imageFileName: imageFile ? imageFile.name : "No image uploaded",
         };
 
-        localStorage.setItem("submittedProperty", JSON.stringify(formData));
+        localStorage.setItem("submittedProperty", JSON.stringify(submittedProperty));
         localStorage.setItem("predictionResult", JSON.stringify(prediction));
 
         if (prediction.label === "real") {
