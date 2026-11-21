@@ -3,5 +3,5 @@
 flask
 flask-cors
 numpy
-Pillow
+Pillow==13.0.0  # src/assets/js/pilResize.js reproduces this version's BICUBIC resize
 onnxruntime==1.32.0  # must match the version that optimised the detector model

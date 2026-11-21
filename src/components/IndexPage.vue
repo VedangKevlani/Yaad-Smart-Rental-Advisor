@@ -3,6 +3,7 @@ import { currentUser } from '@/assets/js/auth.js';
 import { ref, watch, defineProps, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import PriceEvaluator from '@/components/PriceEvaluator.vue';
+import { prepareDetectorUpload } from '@/assets/js/detectorImage.js';
 
 // Same-origin /api in production (Vercel function) and in dev (Vite proxy to Flask).
 const API_BASE = import.meta.env.VITE_API_URL || "";
@@ -46,6 +47,15 @@ const updateRentCost = (val) => {
 
 onMounted(() => {
   const propertyImageInput = document.getElementById("propertyImage");
+
+  // Shrink the photo to the detector's exact 256x256 input as soon as it is
+  // picked (same pixels the server would compute, so same verdict), so the
+  // upload on submit is ~150 KB instead of several MB.
+  let preparedUpload = null;
+  propertyImageInput.addEventListener("change", () => {
+    const f = propertyImageInput.files[0];
+    preparedUpload = f ? { file: f, upload: prepareDetectorUpload(f) } : null;
+  });
   const spinner = document.getElementById("spinner");
   const propertyForm = document.getElementById("propertyForm");
 
@@ -108,9 +118,13 @@ onMounted(() => {
     }
 
     
-      const formData = new FormData();
-      formData.append("image", imageFile);
+      if (!preparedUpload || preparedUpload.file !== imageFile) {
+        preparedUpload = { file: imageFile, upload: prepareDetectorUpload(imageFile) };
+      }
       spinner.style.display = "block";
+      const formData = new FormData();
+      const uploadFile = await preparedUpload.upload;
+      formData.append("image", uploadFile, uploadFile.name);
 
       try {
         // One retry covers a cold start that times out or is cut off.
