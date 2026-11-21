@@ -4,7 +4,7 @@ Runs as a Vercel Python function (all /api/* requests are routed here by
 vercel.json) and locally via `python app.py`.
 
 The image detector is haywoodsloan/ai-image-detector-deploy (SwinV2, Apache-2.0)
-exported to ONNX and int8-quantized: 199 MB instead of 780 MB, runs on
+exported to ONNX and int8-quantized: ~200-330 MB instead of 780 MB, runs on
 onnxruntime instead of torch, ~300 MB RAM, ~1 s per image on CPU, and gives the
 same real/fake verdict as the original fp32 model. The weights are too big to
 ship inside the function bundle, so they are downloaded once per instance and
@@ -26,29 +26,38 @@ from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True  # phone uploads are sometimes cut short
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# The weights are stored as 10 x 20 MB parts on the `detector-v1` GitHub release.
-# On a cold start they are fetched in parallel, each part is checksum-verified in
-# its own thread, and the model is built straight from memory (no disk round trip).
+# The weights are stored as 17 x 20 MB parts on the `detector-v2` GitHub release:
+# the int8 model saved *after* onnxruntime's graph optimisation, so it loads ~2x
+# faster and runs ~25-30% faster than the raw export (same verdicts on the test
+# set; needs the onnxruntime version pinned in requirements.txt). On a cold start
+# the parts are fetched in parallel, each is checksum-verified in its own thread,
+# and the model is built straight from memory (no disk round trip).
 MODEL_BASE_URL = os.environ.get(
     "DETECTOR_MODEL_BASE_URL",
-    "https://github.com/VedangKevlani/Yaad-Smart-Rental-Advisor/releases/download/detector-v1/",
+    "https://github.com/VedangKevlani/Yaad-Smart-Rental-Advisor/releases/download/detector-v2/",
 )
 MODEL_PARTS = {
-    f"ai-image-detector-int8.onnx.part{i:02d}": sha
+    f"ai-image-detector-int8-opt.onnx.part{i:02d}": sha
     for i, sha in enumerate([
-        "83c2c45acff702a030b559da161219c18089ec9ee8a1908981f5e6a7911590dc",
-        "c77c0f2b284cc84be30a33445e647ce5227569a0b066c2404673c6e753f8ff88",
-        "25cf6d96faee1dcf50bae3a57265a693692b5d71e6958afc508a60b8d8a586e5",
-        "11e0b0cb27d9071ba1c950ab977534b2ca17dd5d96a86982733410a17763881f",
-        "355806952259352e6fec2c6f408e2f08c66deabed73fd157e4ae56dfc791af1b",
-        "d0ecbfc10d9fb42e38f20d780ab020a06caa39b5308712173c6ebbda23f244fa",
-        "bf500c227999d16c17d6d235018e62feabf87feb00c3d98b69878930631a802a",
-        "75fbb44a0513db420a55e2be36682fc6e0bcd19b1026824308e315e2be9dbc6c",
-        "947269f0ed5e302bc82385e87e1d19367c93510bb1ef3cd0f426a1235ec21192",
-        "0d63dab823caa716e8b4201e85d4278c9fd20e9d31761b9435efa0ce9965a488",
-    ])
+        "319af673158a0bfdf3f6c04c7069ab38e539e340be61db0c7fc3b0aef43bdb52",
+        "bc7999f6c5b69856eb6ff41b4bc33497809358c56e7bfbefbbe032ff9c808fdf",
+        "7cd4de3b38640ac3beaa203c618bf08f6a32500bc034f1efba64d639208084a6",
+        "08e21e4ae29ee044ca0bcec81d7bbbec6185b65838ec48b84207ddf66709d5f6",
+        "fb2100191c3849069707fb35bd2a39c8c35e6d40b709f5551f646c500f7562be",
+        "15178bed9db4aadd7101d03ed44b3d77644f0a598aaeec8c67380c3f9ef10ffe",
+        "2e09e147e61c4b0b73d9a7f9fa29256fbbe403f81ed581bea4aa33d20916ce35",
+        "d9f44e6d22f71b484f4b857be077ea9b451a7ae05ed21176b1a8412ecf486671",
+        "517918d76485c4e61a0281473cb645ef63a3cb079813c258fc1d512169dcac75",
+        "bb537de1c78230203f93b9185613e7a2467fb7a90dbbb64be6c62611e0f46d29",
+        "c98bc028c42e6f8f794a590c7f9ea5748b7c508fab3e3cd9e227352e8164ff7c",
+        "b73a04ec52e40f408132b5a0c955ad4885eb03622b9e1a2df66df934a1e4bcbb",
+        "3d88cfc24b156546c247da8fb75dcc63f4e67de2c10a6ae60a3d44cb26c125cb",
+        "5ea468e92bdb274e48d8e8e90f0c173aa0d05cb837dcfc6671a49c9f64e6e25f",
+        "5a0cf87ca5d39958aba4a5001c93975739c63d622d5a4ba477a2ddac2fd6c1d9",
+        "055064eb8afed628dc742c770ebbd857b502410701ef847d65043db77993bc10",
+        "4ed3c223459dee279b4be189b77a57ff1dcf392cba7d1d711ac24a83b40d47fb",    ])
 }
-LOCAL_MODEL = os.path.join(ROOT, "models", "ai-image-detector-int8.onnx")
+LOCAL_MODEL = os.path.join(ROOT, "models", "ai-image-detector-int8-opt.onnx")
 
 FAKE_INDEX = 0  # model labels: 0 = artificial, 1 = real
 MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
@@ -100,8 +109,8 @@ def get_session():
                 model = LOCAL_MODEL if os.path.exists(LOCAL_MODEL) else _download_model()
                 t2 = time.perf_counter()
                 opts = ort.SessionOptions()
-                # Graph optimisation at load time triples peak RAM (~1.2 GB) for no
-                # accuracy gain; skipping it keeps the peak around 450 MB.
+                # The model is already optimised offline; re-optimising at load time
+                # would only add ~1.5 s and ~800 MB of peak RAM.
                 opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_DISABLE_ALL
                 session = ort.InferenceSession(model, opts, providers=["CPUExecutionProvider"])
                 del model
