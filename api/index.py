@@ -228,3 +228,143 @@ def evaluate():
     except Exception as e:
         log.exception("evaluate failed")
         return jsonify({"error": str(e)}), 500
+
+
+# ------------------------------------------------------------- map: places nearby
+# The dashboard used to call the public Overpass API straight from the browser
+# with 11 parallel queries. overpass-api.de rate-limits that (429) and rejects
+# unidentified clients (406), so nothing came back and no markers were drawn.
+# Now the browser makes one request here; we send a single combined query with
+# an identifying User-Agent, fall back across Overpass mirrors, and cache the
+# result (in memory and on Vercel's CDN).
+import json  # noqa: E402
+import urllib.parse  # noqa: E402
+
+USER_AGENT = "YaadSmartRentalAdvisor/1.0 (+https://yaad-smart-rental-advisor.vercel.app)"
+OVERPASS_ENDPOINTS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+]
+# category -> list of (OSM key, value). Fitness centres are leisure=*, malls shop=mall.
+PLACE_CATEGORIES = {
+    "restaurant": [("amenity", "restaurant"), ("amenity", "cafe")],
+    "fast_food": [("amenity", "fast_food")],
+    "school": [("amenity", "school"), ("amenity", "college"), ("amenity", "university"),
+               ("amenity", "kindergarten")],
+    "place_of_worship": [("amenity", "place_of_worship")],
+    "hospital": [("amenity", "hospital")],
+    "doctors": [("amenity", "doctors"), ("amenity", "clinic"), ("amenity", "dentist")],
+    "pharmacy": [("amenity", "pharmacy"), ("shop", "chemist")],
+    "bank": [("amenity", "bank"), ("amenity", "atm")],
+    "police": [("amenity", "police")],
+    "supermarket": [("shop", "supermarket"), ("shop", "convenience"), ("shop", "wholesale")],
+    "mall": [("shop", "mall"), ("shop", "department_store")],
+    "fitness_centre": [("leisure", "fitness_centre"), ("leisure", "sports_centre"),
+                       ("amenity", "gym")],
+}
+_TAG_TO_CATEGORY = {kv: cat for cat, kvs in PLACE_CATEGORIES.items() for kv in kvs}
+_places_cache = {}
+_geocode_cache = {}
+CACHE_SECONDS = 24 * 3600
+
+
+def _cached(cache, key):
+    hit = cache.get(key)
+    if hit and time.time() - hit[0] < CACHE_SECONDS:
+        return hit[1]
+    return None
+
+
+def _overpass(query):
+    body = urllib.parse.urlencode({"data": query}).encode()
+    errors = []
+    for url in OVERPASS_ENDPOINTS:
+        try:
+            req = urllib.request.Request(url, data=body, headers={
+                "User-Agent": USER_AGENT, "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
+            })
+            with urllib.request.urlopen(req, timeout=12) as r:
+                return json.loads(r.read())
+        except Exception as e:
+            errors.append(f"{url.split('/')[2]}: {e}")
+            log.warning("Overpass %s failed: %s", url, e)
+    raise RuntimeError("All Overpass servers failed: " + "; ".join(errors))
+
+
+@app.route("/api/amenities")
+def amenities():
+    try:
+        lat = round(float(request.args["lat"]), 4)
+        lon = round(float(request.args["lon"]), 4)
+        radius = min(max(int(request.args.get("radius", 1500)), 200), 5000)
+    except (KeyError, ValueError):
+        return jsonify({"error": "lat and lon are required"}), 400
+
+    key = (lat, lon, radius)
+    places = _cached(_places_cache, key)
+    if places is None:
+        by_key = {}
+        for k, v in _TAG_TO_CATEGORY:
+            by_key.setdefault(k, []).append(v)
+        filters = "".join(
+            f'nwr["{k}"~"^({"|".join(sorted(vs))})$"](around:{radius},{lat},{lon});'
+            for k, vs in by_key.items()
+        )
+        try:
+            data = _overpass(f"[out:json][timeout:25];({filters});out center tags;")
+        except Exception as e:
+            return jsonify({"error": str(e)}), 502
+
+        places, seen = [], set()
+        for el in data.get("elements", []):
+            tags = el.get("tags", {})
+            cat = next((_TAG_TO_CATEGORY[(k, tags[k])] for k in ("amenity", "shop", "leisure")
+                        if (k, tags.get(k)) in _TAG_TO_CATEGORY), None)
+            c = el if el.get("type") == "node" else el.get("center")
+            if not cat or not c or (el["type"], el["id"]) in seen:
+                continue
+            seen.add((el["type"], el["id"]))
+            places.append({
+                "category": cat,
+                "name": tags.get("name") or tags.get("brand") or tags.get("operator") or "",
+                "lat": c["lat"], "lon": c["lon"],
+            })
+        _places_cache[key] = (time.time(), places)
+
+    resp = jsonify({"places": places})
+    resp.headers["Cache-Control"] = "public, max-age=3600, s-maxage=86400"
+    return resp
+
+
+@app.route("/api/geocode")
+def geocode():
+    """Address -> lat/lon via Nominatim, preferring results in Jamaica."""
+    q = (request.args.get("q") or "").strip()
+    if not q:
+        return jsonify({"error": "q is required"}), 400
+    hit = _cached(_geocode_cache, q.lower())
+    if hit is None:
+        hit = {}
+        for extra in ({"countrycodes": "jm"}, {}):  # Jamaica first, then anywhere
+            params = urllib.parse.urlencode({"format": "json", "limit": 1, "q": q, **extra})
+            req = urllib.request.Request("https://nominatim.openstreetmap.org/search?" + params,
+                                         headers={"User-Agent": USER_AGENT})
+            try:
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    res = json.loads(r.read())
+            except Exception as e:
+                log.warning("Nominatim failed: %s", e)
+                return jsonify({"error": "Geocoding service unavailable"}), 502
+            if res:
+                hit = {"lat": float(res[0]["lat"]), "lon": float(res[0]["lon"]),
+                       "display_name": res[0].get("display_name", "")}
+                break
+        _geocode_cache[q.lower()] = (time.time(), hit)
+    if not hit:
+        return jsonify({"error": "Address not found"}), 404
+    resp = jsonify(hit)
+    resp.headers["Cache-Control"] = "public, max-age=3600, s-maxage=86400"
+    return resp

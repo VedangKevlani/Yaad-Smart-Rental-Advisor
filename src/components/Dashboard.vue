@@ -1,283 +1,195 @@
 <script setup>
 import 'leaflet/dist/leaflet.css';
-import { onMounted, ref } from 'vue';
+import L from 'leaflet';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
 import PriceEvaluator from '@/components/PriceEvaluator.vue';
 
 const showEvaluator = ref(false);
 const errorMsg = ref('');
 const showPopup = ref(false);
 
+// Same-origin /api (Vercel function) unless an external API is configured.
+const API_BASE = import.meta.env.VITE_API_URL || '';
+const SEARCH_RADIUS_M = 1500;
 
-const redIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+// One entry per list on the page. Colours/icons are drawn with CSS (divIcon),
+// so every category gets its own marker and the legend always matches.
+const CATEGORIES = [
+  { key: 'restaurant', listId: 'restaurants-list', label: 'Restaurant', color: '#8e44ad', icon: 'bi-cup-hot' },
+  { key: 'fast_food', listId: 'fast-food-list', label: 'Fast Food', color: '#e67e22', icon: 'bi-cup-straw' },
+  { key: 'school', listId: 'school-list', label: 'School', color: '#d4ac0d', icon: 'bi-mortarboard' },
+  { key: 'place_of_worship', listId: 'place-of-worship-list', label: 'Place of Worship', color: '#6d4c41', icon: 'bi-buildings' },
+  { key: 'hospital', listId: 'hospital-list', label: 'Hospital', color: '#c0392b', icon: 'bi-hospital' },
+  { key: 'doctors', listId: 'doctors-list', label: 'Doctor / Clinic', color: '#e84393', icon: 'bi-heart-pulse' },
+  { key: 'pharmacy', listId: 'pharmacy-list', label: 'Pharmacy', color: '#27ae60', icon: 'bi-capsule-pill' },
+  { key: 'bank', listId: 'bank-list', label: 'Bank / ATM', color: '#2c3e50', icon: 'bi-bank' },
+  { key: 'police', listId: 'police-list', label: 'Police Station', color: '#2058c9', icon: 'bi-shield-lock' },
+  { key: 'supermarket', listId: 'supermarket-list', label: 'Supermarket', color: '#b7950b', icon: 'bi-cart' },
+  { key: 'mall', listId: 'mall-list', label: 'Mall', color: '#16a085', icon: 'bi-bag' },
+  { key: 'fitness_centre', listId: 'fitness-centre-list', label: 'Fitness Centre', color: '#7f8c8d', icon: 'bi-activity' },
+];
+const BY_KEY = Object.fromEntries(CATEGORIES.map((c) => [c.key, c]));
 
-const colorIcons = {
-  violet: new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  }),
-  yellow: new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  }),
-  grey: new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-grey.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  }),
-  orange: new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  }),
-  black: new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-black.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  }),
-  green: new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  }),
-  blue: new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  }),
-  gold: new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  }),
+function pinIcon(color, icon, size = 30) {
+  return L.divIcon({
+    className: 'poi-pin-wrap',
+    html: `<div class="poi-pin" style="background:${color};width:${size}px;height:${size}px"><i class="bi ${icon}"></i></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size],
+    popupAnchor: [0, -size],
+  });
+}
+const homeIcon = pinIcon('#e53935', 'bi-house-door-fill', 38);
+
+const HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => HTML_ESCAPES[c]);
 }
 
+function distanceM(a, b) {
+  const R = 6371000, rad = Math.PI / 180;
+  const dLat = (b[0] - a[0]) * rad, dLon = (b[1] - a[1]) * rad;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
 
 function showToast(message, type) {
-  const toast = document.querySelector("#toast");
-  const toastContent = toast.querySelector(".toast-content");
-
-  toast.classList.remove("show", type);
-
+  const toast = document.querySelector('#toast');
+  const toastContent = toast?.querySelector('.toast-content');
   if (!toast || !toastContent) {
-    console.error("Toast element or content not found.");
+    console.error('Toast element or content not found.');
     return;
   }
-
+  toast.classList.remove('show', type);
   toastContent.textContent = message;
-  toast.classList.add("show", type);
-
+  toast.classList.add('show', type);
   setTimeout(() => {
-    toast.classList.remove("show");
+    toast.classList.remove('show');
   }, 3000);
 }
 
-onMounted(() => {
+function setAllLists(html) {
+  CATEGORIES.forEach(({ listId }) => {
+    const list = document.getElementById(listId);
+    if (list) list.innerHTML = html;
+  });
+}
+
+async function getJson(url, tries = 2) {
+  let lastErr;
+  for (let i = 0; i < tries; i++) {
+    try {
+      const res = await fetch(url);
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) return data;
+      lastErr = new Error(data.error || `HTTP ${res.status}`);
+      if (res.status < 500) break;
+    } catch (e) {
+      lastErr = e;
+    }
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+  throw lastErr;
+}
+
+let map;
+
+onMounted(async () => {
   const mapElement = document.getElementById('map');
   const storedData = localStorage.getItem('submittedProperty');
 
-  let map = L.map('map').setView([18.0155, -76.8766], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
+  map = L.map('map').setView([18.0155, -76.8766], 13);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
     attribution: '© OpenStreetMap contributors',
   }).addTo(map);
 
-  let currentMarker;
-
-  if (storedData) {
-    const { address } = JSON.parse(storedData);
-
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.length > 0) {
-          const lat = parseFloat(data[0].lat);
-          const lon = parseFloat(data[0].lon);
-
-          map.setView([lat, lon], 15);
-
-          currentMarker = L.marker([lat, lon], { icon: redIcon })
-            .addTo(map)
-            .bindPopup(`<strong>${address}</strong>`)
-            .openPopup();
-
-          getAmenities(lat, lon);
-        } else {
-          errorMsg.value = 'Could not locate address on the map.';
-          showToast(errorMsg.value, 'error');
-        }
-      })
-      .catch(() => {
-        errorMsg.value = 'Error fetching map location.';
-        showToast(errorMsg.value, 'error');
-      });
-  } else {
-    errorMsg.value = 'No property data found. Submit a property first.';
-    showToast(errorMsg.value, 'error');
-  }
-
-
-  function getAmenities(lat, lon) {
-    const amenityTypes = [
-      { key: 'restaurant', listId: 'restaurants-list', label: 'Unnamed Restaurant', color: 'violet' },
-      { key: 'school', listId: 'school-list', label: 'Unnamed School', color: 'yellow' },
-      { key: 'place_of_worship', listId: 'place-of-worship-list', label: 'Unnamed Place of Worship', color: '' },
-      { key: 'hospital', listId: 'hospital-list', label: 'Unnamed Hospital', color: 'grey' },
-      { key: 'fast_food', listId: 'fast-food-list', label: 'Unnamed Fast Food Place', color: 'orange' },
-      { key: 'bank', listId: 'bank-list', label: 'Unnamed Bank', color: 'black' },
-      { key: 'pharmacy', listId: 'pharmacy-list', label: 'Unnamed Pharmacy', color: 'green' },
-      { key: 'police', listId: 'police-list', label: 'Unnamed Police Station', color: 'blue' },
-      { key: 'doctors', listId: 'doctors-list', label: "Unnamed Doctor's Office", color: '' },
-      { key: 'supermarket', listId: 'supermarket-list', label: 'Unnamed Supermarket', isShop: true, color: 'gold' },
-      { key: 'fitness_centre', listId: 'fitness-centre-list', label: 'Unnamed Fitness Centre', color: '' },
-    ];
-
-    amenityTypes.forEach(({ key, listId, label, isShop, color }) => {
-      const radius = 1000;
-      const query = `
-        [out:json][timeout:45];
-        (
-          node["${isShop ? 'shop' : 'amenity'}"="${key}"](around:${radius},${lat},${lon});
-          way["${isShop ? 'shop' : 'amenity'}"="${key}"](around:${radius},${lat},${lon});
-          relation["${isShop ? 'shop' : 'amenity'}"="${key}"](around:${radius},${lat},${lon});
-        );
-        out center;
-      `;
-
-      fetch('https://overpass-api.de/api/interpreter', {
-        method: 'POST',
-        body: query,
-      })
-        .then(res => res.json())
-        .then(data => {
-          const list = document.getElementById(listId);
-          if (!list) {
-            console.error(`Element with id "${listId}" not found in the DOM.`);
-            return;
-          }
-          list.innerHTML = '';
-
-          data.elements.forEach(element => {
-            const name = element.tags?.name || label;
-            const markerColor = element.tags?.colour || color;
-            const icon = colorIcons[markerColor] || colorIcons.grey;
-
-            if (name.toLowerCase().startsWith('unnamed')) return;
-
-            const latLng = element.type === 'node'
-              ? [element.lat, element.lon]
-              : [element.center.lat, element.center.lon];
-
-            const marker = L.marker(latLng, { icon })
-              .addTo(map)
-              .bindPopup(`<strong>${name}</strong>`);
-
-            const link = document.createElement('p');
-            link.textContent = name;
-            link.style.cursor = 'pointer';
-            link.className = "link";
-
-            link.addEventListener('mouseenter', () => {
-              if (document.body.classList.contains('dark-mode')) {
-                link.classList.add("dark-mode");
-              } else {
-                link.classList.remove("dark-mode");
-              }
-            });
-
-            link.addEventListener('mouseleave', () => {
-              if (document.body.classList.contains('dark-mode')) {
-                link.classList.add("dark-mode");
-              } else {
-                link.classList.remove("dark-mode");
-              }
-            });
-
-
-            link.addEventListener('click', (e) => {
-              e.preventDefault();
-              mapElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              map.setView(latLng, 18);
-              setTimeout(() => marker.openPopup(), 200);
-            });
-            list.appendChild(link);
-
-
-          });
-        })
-        .catch(err => {
-          console.error(`Error fetching ${key}:`, err);
-        });
-    });
-  }
-
   const legend = L.control({ position: 'bottomright' });
-
-  legend.onAdd = function (map) {
-    const div = L.DomUtil.create('div', 'info legend');
-    const amenities = [
-      { label: 'Bank', color: 'black' },
-      { label: 'Fast Food', color: 'orange' },
-      { label: 'Pharmacy', color: 'green' },
-      { label: 'Police Station', color: 'blue' },
-      { label: 'Restaurant', color: 'violet' },
-      { label: 'School', color: 'yellow' },
-      { label: 'Supermarket', color: 'gold' },
-      { label: 'Other', color: 'grey' }
-    ];
-
-    div.innerHTML += '<h4 style="color: black; font-weight: bold; text-decoration: underline;">Amenities</h4>';
-    amenities.forEach(({ label, color }) => {
-      div.innerHTML += `
-      <div style="display: flex; align-items: center; margin-bottom: 4px; color: black; font-weight:bold;">
-        <span style="
-          background-color: ${color};
-          width: 16px;
-          height: 16px;
-          display: inline-block;
-          margin-right: 8px;
-          border: 1px solid #000;
-        "></span> ${label}
-      </div>`;
-    });
-
+  legend.onAdd = function () {
+    const div = L.DomUtil.create('div', 'info legend map-legend');
+    div.innerHTML = '<h4>Amenities</h4>' +
+      [{ label: 'Your property', color: '#e53935' }, ...CATEGORIES]
+        .map(({ label, color }) => `<div class="legend-row"><span style="background:${color}"></span>${escapeHtml(label)}</div>`)
+        .join('');
     return div;
   };
-
   legend.addTo(map);
 
+  if (!storedData) {
+    errorMsg.value = 'No property data found. Submit a property first.';
+    showToast(errorMsg.value, 'error');
+    return;
+  }
+  setAllLists('<p class="text-muted small mb-0">Loading…</p>');
+
+  const { address } = JSON.parse(storedData);
+  let home;
+  try {
+    const g = await getJson(`${API_BASE}/api/geocode?q=${encodeURIComponent(address)}`);
+    home = [g.lat, g.lon];
+  } catch (e) {
+    errorMsg.value = /not found/i.test(e.message) ? 'Could not locate address on the map.' : 'Error fetching map location.';
+    showToast(errorMsg.value, 'error');
+    setAllLists('');
+    return;
+  }
+
+  map.setView(home, 15);
+  L.marker(home, { icon: homeIcon, zIndexOffset: 1000 })
+    .addTo(map)
+    .bindPopup(`<strong>${escapeHtml(address)}</strong>`)
+    .openPopup();
+  L.circle(home, { radius: SEARCH_RADIUS_M, color: '#40a7c3', weight: 1, fillOpacity: 0.04 }).addTo(map);
+
+  let places;
+  try {
+    ({ places } = await getJson(`${API_BASE}/api/amenities?lat=${home[0]}&lon=${home[1]}&radius=${SEARCH_RADIUS_M}`, 3));
+  } catch (e) {
+    console.error('Error fetching amenities:', e);
+    showToast('Could not load nearby amenities. Please try again shortly.', 'error');
+    setAllLists('<p class="text-muted small mb-0">Unavailable right now.</p>');
+    return;
+  }
+
+  const lists = Object.fromEntries(CATEGORIES.map((c) => [c.key, []]));
+  for (const p of places) {
+    const cat = BY_KEY[p.category];
+    if (!cat) continue;
+    const latLng = [p.lat, p.lon];
+    const title = p.name || cat.label;
+    const marker = L.marker(latLng, { icon: pinIcon(cat.color, cat.icon) })
+      .addTo(map)
+      .bindPopup(`<strong>${escapeHtml(title)}</strong><br><small>${escapeHtml(cat.label)}</small>`);
+    if (p.name) lists[cat.key].push({ name: p.name, latLng, marker, dist: distanceM(home, latLng) });
+  }
+
+  CATEGORIES.forEach(({ key, listId }) => {
+    const list = document.getElementById(listId);
+    if (!list) return;
+    list.innerHTML = '';
+    const items = lists[key].sort((a, b) => a.dist - b.dist);
+    if (!items.length) {
+      list.innerHTML = '<p class="text-muted small mb-0">None found nearby.</p>';
+      return;
+    }
+    items.forEach(({ name, latLng, marker, dist }) => {
+      const link = document.createElement('p');
+      link.textContent = `${name} (${dist < 1000 ? Math.round(dist) + ' m' : (dist / 1000).toFixed(1) + ' km'})`;
+      link.style.cursor = 'pointer';
+      link.className = 'link';
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        mapElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        map.setView(latLng, 18);
+        setTimeout(() => marker.openPopup(), 200);
+      });
+      list.appendChild(link);
+    });
+  });
+});
+
+onBeforeUnmount(() => {
+  if (map) map.remove();
 });
 </script>
 
@@ -376,7 +288,7 @@ onMounted(() => {
             </div>
             <div class="card" style="width: 18rem;">
               <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-person-circle me-2"></i> Doctors</h5>
+                <h5 class="card-title"><i class="bi bi-person-circle me-2"></i> Doctors &amp; Clinics</h5>
                 <div id="doctors-list" class="list-unstyled mb-0"></div>
               </div>
             </div>
@@ -389,6 +301,12 @@ onMounted(() => {
               <div class="card-body">
                 <h5 class="card-title"><i class="bi bi-shop me-2"></i> Supermarkets</h5>
                 <div id="supermarket-list" class="list-unstyled mb-0"></div>
+              </div>
+            </div>
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bag me-2"></i> Malls</h5>
+                <div id="mall-list" class="list-unstyled mb-0"></div>
               </div>
             </div>
             <div class="card" style="width: 18rem;">
@@ -605,5 +523,36 @@ div[id$="list"] *:hover {
     transform: scale(1);
     opacity: 1;
   }
+}
+</style>
+
+<style>
+/* Leaflet builds marker/legend DOM itself, so these styles cannot be scoped. */
+.poi-pin-wrap { background: none; border: none; }
+.poi-pin {
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+.poi-pin i { transform: rotate(45deg); color: #fff; font-size: 14px; line-height: 1; }
+.map-legend {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 8px 10px;
+  border-radius: 6px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+  color: #000;
+  font-size: 12px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.map-legend h4 { font-size: 14px; font-weight: bold; text-decoration: underline; margin: 0 0 6px; color: #000; }
+.map-legend .legend-row { display: flex; align-items: center; margin-bottom: 3px; font-weight: bold; }
+.map-legend .legend-row span {
+  width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; border: 1px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4); display: inline-block;
 }
 </style>
