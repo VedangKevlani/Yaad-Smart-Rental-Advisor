@@ -1,0 +1,9 @@
+# Not needed on Vercel (keeps the Python function bundle small)
+uploads/
+models/
+__pycache__/
+*.h5
+src/price_eval/.ipynb_checkpoints/
+src/price_eval/*.py
+train_model.py
+test_image.py

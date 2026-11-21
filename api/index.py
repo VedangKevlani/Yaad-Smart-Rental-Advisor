@@ -10,7 +10,6 @@ same real/fake verdict as the original fp32 model. The weights are too big to
 ship inside the function bundle, so they are downloaded once per instance into
 /tmp and reused for every later request (scripts/export_onnx.py rebuilds them).
 """
-import csv
 import hashlib
 import logging
 import os
@@ -157,26 +156,21 @@ FEATURES = [
     "Swimming_Pool", "Central_Location", "Gated_Community",
     "View_-_Ocean", "Waterfront_-_Ocean",
 ]
-_rent_model = None
+# RandomForest (100 trees) trained on src/price_eval/property_rentals.csv and
+# exported to ONNX by scripts/export_rent_model.py, so no scikit-learn is needed here.
+RENT_MODEL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rent_model.onnx")
+_rent_session = None
 
 
-def get_rent_model():
-    global _rent_model
-    if _rent_model is None:
-        from sklearn.ensemble import RandomForestRegressor
+def predict_rent(features):
+    global _rent_session
+    if _rent_session is None:
+        import onnxruntime as ort
 
-        X, y = [], []
-        with open(os.path.join(ROOT, "src", "price_eval", "property_rentals.csv"), newline="") as f:
-            for row in csv.DictReader(f):
-                try:
-                    X.append([float(row[c]) for c in FEATURES])
-                    y.append(float(row["Price"]))
-                except (ValueError, TypeError, KeyError):
-                    continue  # skip rows with missing values (same as dropna)
-        model = RandomForestRegressor(n_estimators=100, random_state=42)
-        model.fit(np.array(X), np.array(y))
-        _rent_model = model
-    return _rent_model
+        _rent_session = ort.InferenceSession(RENT_MODEL, providers=["CPUExecutionProvider"])
+    inp = _rent_session.get_inputs()[0]
+    x = np.array([features], dtype=np.float64 if "double" in inp.type else np.float32)
+    return float(np.ravel(_rent_session.run(None, {inp.name: x})[0])[0])
 
 
 @app.route("/api/evaluate", methods=["POST"])
@@ -187,7 +181,7 @@ def evaluate():
             int(data.get(c, 0)) for c in FEATURES[1:]
         ]
         est_rent = float(data.get("EstimatedRent", 0))
-        predicted_rent = float(get_rent_model().predict(np.array(input_data).reshape(1, -1))[0])
+        predicted_rent = predict_rent(input_data)
         diff_percent = abs(predicted_rent - est_rent) / est_rent
 
         if est_rent < predicted_rent:
