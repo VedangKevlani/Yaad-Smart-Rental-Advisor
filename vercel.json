@@ -1,0 +1,12 @@
+{
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60,
+      "excludeFiles": "{node_modules/**,dist/**,src/assets/**,src/img/**,src/components/**,src/price_eval/.ipynb_checkpoints/**,public/**,uploads/**,models/**,__pycache__/**,*.h5,*.onnx}"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/((?!api/|assets/).*)", "destination": "/index.html" }
+  ]
+}

@@ -4,6 +4,9 @@ import { ref, watch, defineProps, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import PriceEvaluator from '@/components/PriceEvaluator.vue';
 
+// Same-origin /api in production (Vercel function) and in dev (Vite proxy to Flask).
+const API_BASE = import.meta.env.VITE_API_URL || "";
+
 const showEvaluator = ref(false);
 const router = useRouter();
 
@@ -50,6 +53,10 @@ onMounted(() => {
   localStorage.removeItem("submittedProperty");
 
   spinner.style.display = "none";
+
+  // Start loading the detector model in the background so it is ready by the
+  // time the user submits (the first load on a fresh server takes a few seconds).
+  fetch(`${API_BASE}/api/warmup`).catch(() => {});
 
   function showToast(message, type) {
     const toast = document.querySelector("#toast");
@@ -107,10 +114,20 @@ onMounted(() => {
       spinner.style.display = "block";
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:5000"}/check-image`, {
-          method: "POST",
-          body: formData,
-        });
+        // One retry covers a cold start that times out or is cut off.
+        let response;
+        for (let attempt = 1; ; attempt++) {
+          try {
+            response = await fetch(`${API_BASE}/api/check-image`, {
+              method: "POST",
+              body: formData,
+            });
+            if (response.status < 500 || attempt >= 2) break;
+          } catch (err) {
+            if (attempt >= 2) throw err;
+          }
+          await new Promise((r) => setTimeout(r, 1500));
+        }
 
         const text = await response.text();
 

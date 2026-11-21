@@ -23,3 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 *.zip
+
+# Detector weights (199 MB) are hosted as a GitHub release asset, not in git
+models/*.onnx
+__pycache__/

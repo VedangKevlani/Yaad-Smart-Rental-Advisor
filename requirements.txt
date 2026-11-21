@@ -1,10 +1,8 @@
---extra-index-url https://download.pytorch.org/whl/cpu
+# Backend runtime (Vercel Python function + local `python app.py`).
+# No torch/transformers: the detector runs as an int8 ONNX model on onnxruntime.
 flask
 flask-cors
-gunicorn
 numpy
-pandas
 Pillow
+onnxruntime
 scikit-learn
-torch
-transformers
