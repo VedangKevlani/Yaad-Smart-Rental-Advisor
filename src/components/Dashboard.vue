@@ -541,18 +541,17 @@ div[id$="list"] *:hover {
 .poi-pin i { transform: rotate(45deg); color: #fff; font-size: 14px; line-height: 1; }
 .map-legend {
   background: rgba(255, 255, 255, 0.92);
-  padding: 8px 10px;
+  padding: 6px 9px;
   border-radius: 6px;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
   color: #000;
-  font-size: 12px;
-  max-height: 260px;
-  overflow-y: auto;
+  font-size: 11px;
+  line-height: 1.2;
 }
-.map-legend h4 { font-size: 14px; font-weight: bold; text-decoration: underline; margin: 0 0 6px; color: #000; }
-.map-legend .legend-row { display: flex; align-items: center; margin-bottom: 3px; font-weight: bold; }
+.map-legend h4 { font-size: 13px; font-weight: bold; text-decoration: underline; margin: 0 0 4px; color: #000; }
+.map-legend .legend-row { display: flex; align-items: center; margin-bottom: 2px; font-weight: bold; }
 .map-legend .legend-row span {
-  width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; border: 1px solid #fff;
+  width: 12px; height: 12px; border-radius: 50%; margin-right: 7px; border: 1px solid #fff;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4); display: inline-block;
 }
 </style>
