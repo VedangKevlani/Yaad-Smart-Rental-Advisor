@@ -233,10 +233,13 @@ def evaluate():
 # ------------------------------------------------------------- map: places nearby
 # The dashboard used to call the public Overpass API straight from the browser
 # with 11 parallel queries. overpass-api.de rate-limits that (429) and rejects
-# unidentified clients (406), so nothing came back and no markers were drawn.
-# Now the browser makes one request here; we send a single combined query with
-# an identifying User-Agent, fall back across Overpass mirrors, and cache the
-# result (in memory and on Vercel's CDN).
+# many clients outright (406, including Vercel's servers), and its mirrors often
+# time out, so nothing came back and no markers were drawn.
+# Now: addresses in Jamaica are answered instantly from api/places_jm.json, an
+# extract of every relevant OpenStreetMap place in Jamaica (rebuild with
+# scripts/build_places.py). Anywhere else falls back to live Overpass (one
+# combined query, identifying User-Agent, several mirrors). Results are cached
+# in memory and on Vercel's CDN.
 import json  # noqa: E402
 import urllib.parse  # noqa: E402
 
@@ -294,6 +297,30 @@ def _overpass(query):
     raise RuntimeError("All Overpass servers failed: " + "; ".join(errors))
 
 
+JAMAICA_BBOX = (17.55, -78.55, 18.65, -76.05)  # min lat, min lon, max lat, max lon
+_local = None
+
+
+def _local_places(lat, lon, radius):
+    global _local
+    if _local is None:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "places_jm.json"),
+                  encoding="utf-8") as f:
+            d = json.load(f)
+        rows = d["places"]
+        _local = (d["categories"], np.array([[r[1], r[2]] for r in rows]), rows)
+    cats, coords, rows = _local
+    rad = np.pi / 180
+    dlat = (coords[:, 0] - lat) * rad
+    dlon = (coords[:, 1] - lon) * rad
+    h = np.sin(dlat / 2) ** 2 + np.cos(lat * rad) * np.cos(coords[:, 0] * rad) * np.sin(dlon / 2) ** 2
+    dist = 2 * 6371000 * np.arcsin(np.sqrt(h))
+    return [
+        {"category": cats[rows[i][0]], "name": rows[i][3], "lat": rows[i][1], "lon": rows[i][2]}
+        for i in np.nonzero(dist <= radius)[0]
+    ]
+
+
 @app.route("/api/amenities")
 def amenities():
     try:
@@ -302,6 +329,11 @@ def amenities():
         radius = min(max(int(request.args.get("radius", 1500)), 200), 5000)
     except (KeyError, ValueError):
         return jsonify({"error": "lat and lon are required"}), 400
+
+    if JAMAICA_BBOX[0] <= lat <= JAMAICA_BBOX[2] and JAMAICA_BBOX[1] <= lon <= JAMAICA_BBOX[3]:
+        resp = jsonify({"places": _local_places(lat, lon, radius), "source": "osm-extract"})
+        resp.headers["Cache-Control"] = "public, max-age=3600, s-maxage=86400"
+        return resp
 
     key = (lat, lon, radius)
     places = _cached(_places_cache, key)
