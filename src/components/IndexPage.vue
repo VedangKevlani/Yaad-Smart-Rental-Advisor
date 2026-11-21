@@ -54,9 +54,8 @@ onMounted(() => {
 
   spinner.style.display = "none";
 
-  // Start loading the detector model in the background so it is ready by the
-  // time the user submits (the first load on a fresh server takes a few seconds).
-  fetch(`${API_BASE}/api/warmup`).catch(() => {});
+  // index.html already warms the same-origin /api; warm an external API here.
+  if (API_BASE) fetch(`${API_BASE}/api/warmup`).catch(() => {});
 
   function showToast(message, type) {
     const toast = document.querySelector("#toast");
